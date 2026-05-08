@@ -6,6 +6,7 @@ import { PortfolioTile } from "@/components/portfolio-tile";
 import { FloatingPaths } from "@/components/floating-paths";
 import { ServicesBento } from "@/components/services-bento";
 import { TypewriterEffect } from "@/components/typewriter-effect";
+import AnimatedTextCycle from "@/components/ui/animated-text-cycle";
 import { portfolioItems } from "@/lib/portfolio";
 import { testimonials } from "@/lib/testimonials";
 
@@ -103,8 +104,35 @@ export default function HomePage() {
       {/* SERVICES — bento grid with scroll-linked expansion */}
       <ServicesBento />
 
+      {/* BRIDGE — animated cycling intro to the work below */}
+      <section className="relative px-6 py-24 md:py-28 text-center">
+        <div className="mx-auto max-w-(--container-narrow)">
+          <Eyebrow>Naše práce v kostce</Eyebrow>
+          <h2 className="text-3xl md:text-4xl lg:text-5xl tracking-tight leading-[1.15]">
+            Tvoříme{" "}
+            <AnimatedTextCycle
+              words={["kampaně", "weby", "videa", "značky", "strategie"]}
+              interval={3500}
+              className="text-accent"
+            />
+            ,
+            <br className="hidden md:block" /> které pomáhají vašemu byznysu
+            růst.
+          </h2>
+          <p className="text-lg text-text-muted max-w-xl mx-auto mt-8">
+            Žádný šum, žádné šablony. Jen kampaně, weby a obsah šitý na míru
+            realitním a cestovním agenturám v Česku.
+          </p>
+          <div className="mt-8">
+            <Button href="#projekty" variant="outline">
+              Podívejte se na naši práci ↓
+            </Button>
+          </div>
+        </div>
+      </section>
+
       {/* PORTFOLIO TEASER */}
-      <section className="py-20 md:py-24">
+      <section id="projekty" className="py-20 md:py-24 scroll-mt-20">
         <div className="mx-auto max-w-(--container-default) px-6">
           <header className="text-center mb-12">
             <Eyebrow>Naše práce</Eyebrow>
