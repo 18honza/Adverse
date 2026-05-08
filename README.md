@@ -1,36 +1,91 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Adverse
 
-## Getting Started
+Web pro digitální marketingovou agenturu Adverse — Next.js 16 (App Router) + Tailwind v4 + Framer Motion. Cílová skupina: realitní a cestovní agentury v ČR.
 
-First, run the development server:
+## Stack
+
+- **Next.js 16** (App Router, Turbopack)
+- **TypeScript**
+- **Tailwind CSS v4** (theme v `globals.css`)
+- **Framer Motion** — animace (mobile menu, portfolio filter)
+- **Resend** — kontaktní formulář (Server Action)
+- **Lucide React** — ikony
+
+## Lokální dev
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Otevři <http://localhost:3000>.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Environment variables
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Zkopíruj `.env.example` do `.env.local` a vyplň:
 
-## Learn More
+```
+RESEND_API_KEY=re_xxxxxxxx
+```
 
-To learn more about Next.js, take a look at the following resources:
+Bez klíče lokální dev funguje — submission se logne do konzole a UI ukáže "úspěch" (vhodné pro testování).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Struktura
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+src/
+├── app/
+│   ├── layout.tsx           Root layout + Inter font + meta
+│   ├── page.tsx             Domů
+│   ├── sluzby/page.tsx      Služby (6 bloků)
+│   ├── portfolio/page.tsx   Portfolio + filter
+│   ├── reference/page.tsx   Reference + case study
+│   ├── o-nas/page.tsx       O nás (tým, hodnoty, čísla)
+│   ├── kontakt/
+│   │   ├── page.tsx
+│   │   └── actions.ts       Server Action (Resend)
+│   ├── sitemap.ts
+│   ├── robots.ts
+│   └── not-found.tsx
+├── components/
+│   ├── header.tsx           Sticky nav + mobile menu (Framer)
+│   ├── footer.tsx           3-col + tým kontakty
+│   ├── marquee.tsx          Scrolling services strip
+│   ├── stat-counter.tsx     IntersectionObserver count-up
+│   ├── portfolio-tile.tsx
+│   ├── portfolio-filter.tsx Klient s Framer animacemi
+│   ├── contact-form.tsx     useActionState
+│   ├── page-hero.tsx        Sdílený PageHero + FinalCta
+│   ├── eyebrow.tsx
+│   └── ui/button.tsx
+└── lib/
+    ├── cn.ts                clsx + tailwind-merge
+    ├── site.ts              Data webu (tým, navigace)
+    ├── services.ts          6 služeb
+    ├── portfolio.ts         9 portfolio položek
+    └── testimonials.ts      6 referencí
+```
 
-## Deploy on Vercel
+## Design tokens
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+V `src/app/globals.css` (Tailwind v4 `@theme inline`):
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| Token | Hodnota | Použití |
+|---|---|---|
+| `--color-bg` | `#ffffff` | Pozadí |
+| `--color-text` | `#111111` | Hlavní text |
+| `--color-text-muted` | `#666666` | Sekundární text |
+| `--color-accent` | `#e63030` | Brand červená |
+| `--color-dark` | `#0d0d0d` | Tmavé sekce |
+| `--font-display` | Arial Black | Nadpisy |
+| `--font-serif` | Georgia italic | Decentní detaily |
+
+## Deploy
+
+Nasaď přes [Vercel](https://vercel.com): `vercel deploy` nebo přes GitHub auto-import.
+Po deploy přidej v Vercel projektu env var `RESEND_API_KEY`.
+
+Doména `adverse.cz` se přesměruje DNS změnou v Wedos administraci:
+- `A @ → 76.76.21.21`
+- `CNAME www → cname.vercel-dns.com`
+- MX záznamy zůstávají na Wedosu (e-maily nedotčené).

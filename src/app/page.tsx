@@ -1,65 +1,233 @@
-import Image from "next/image";
+import { Eyebrow, DividerRed } from "@/components/eyebrow";
+import { Button } from "@/components/ui/button";
+import { Marquee } from "@/components/marquee";
+import { StatCounter } from "@/components/stat-counter";
+import { PortfolioTile } from "@/components/portfolio-tile";
+import { services } from "@/lib/services";
+import { portfolioItems } from "@/lib/portfolio";
+import { testimonials } from "@/lib/testimonials";
 
-export default function Home() {
+export default function HomePage() {
+  const heroPortfolio = portfolioItems.slice(0, 4);
+  const featured = testimonials[0];
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <>
+      {/* HERO */}
+      <section className="relative overflow-hidden text-center px-6 py-24 md:py-32">
+        <div
+          aria-hidden="true"
+          className="absolute top-0 bottom-[30%] left-6 w-px bg-gradient-to-b from-accent to-transparent accent-pulse hidden md:block"
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+        <div
+          aria-hidden="true"
+          className="absolute top-0 bottom-[30%] right-6 w-px bg-gradient-to-b from-accent to-transparent accent-pulse hidden md:block"
+        />
+
+        <div className="relative max-w-(--container-narrow) mx-auto">
+          <Eyebrow>Digitální marketing</Eyebrow>
+          <h1 className="text-5xl sm:text-6xl md:text-7xl tracking-tight">
+            Výsledky,
+            <br />
+            které <span className="mark-box">vidíte.</span>
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <DividerRed />
+          <p className="text-lg text-text-muted max-w-xl mx-auto">
+            Meta &amp; Google reklamy, social media, weby a produkce.
+            <span className="block mt-2 font-serif italic text-text-faint text-base">
+              Každý klient je pro nás jedinečný.
+            </span>
+          </p>
+
+          <div className="flex flex-wrap justify-center gap-3 mt-8">
+            <Button href="/kontakt" variant="primary">
+              Domluvit schůzku
+            </Button>
+            <Button href="#sluzby" variant="outline">
+              Naše služby ↓
+            </Button>
+          </div>
+
+          {/* Stats */}
+          <div className="grid grid-cols-3 gap-5 sm:gap-12 mt-16 pt-6 border-t border-divider max-w-3xl mx-auto">
+            <Stat
+              value={
+                <StatCounter
+                  value={12}
+                  suffix="+"
+                  className="font-display text-3xl md:text-4xl font-black"
+                />
+              }
+              label="Spokojených klientů"
+            />
+            <Stat
+              value={
+                <span className="font-display text-3xl md:text-4xl font-black">
+                  META + GGL
+                </span>
+              }
+              label="Certifikované reklamy"
+            />
+            <Stat
+              value={
+                <StatCounter
+                  value={100}
+                  suffix="%"
+                  className="font-display text-3xl md:text-4xl font-black"
+                />
+              }
+              label="Osobní přístup"
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* SERVICES OVERVIEW */}
+      <section id="sluzby" className="bg-surface-alt py-20 md:py-24">
+        <div className="mx-auto max-w-(--container-default) px-6">
+          <header className="text-center mb-12">
+            <Eyebrow>Co umíme</Eyebrow>
+            <h2 className="text-4xl md:text-5xl">Marketing, který se vyplatí</h2>
+          </header>
+
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {services.map((s) => {
+              const Icon = s.icon;
+              return (
+                <article
+                  key={s.slug}
+                  className="group p-8 border border-divider bg-bg transition-all duration-150 hover:border-accent hover:-translate-y-0.5"
+                >
+                  <Icon className="w-8 h-8 text-accent mb-4" strokeWidth={2} />
+                  <h3 className="text-lg mb-3">{s.title}</h3>
+                  <p className="text-sm text-text-muted mb-4">{s.short}</p>
+                  <a
+                    href={`/sluzby#${s.slug}`}
+                    className="text-xs font-bold uppercase tracking-[2px] text-accent"
+                  >
+                    Více →
+                  </a>
+                </article>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* PORTFOLIO TEASER */}
+      <section className="py-20 md:py-24">
+        <div className="mx-auto max-w-(--container-default) px-6">
+          <header className="text-center mb-12">
+            <Eyebrow>Naše práce</Eyebrow>
+            <h2 className="text-4xl md:text-5xl">Vybrané projekty</h2>
+          </header>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 md:grid-rows-2 gap-3 md:h-[480px]">
+            <PortfolioTile
+              item={heroPortfolio[0]}
+              className="md:col-span-1 md:row-span-2 h-56 md:h-auto"
+              ariaLabel="Web pro realitní agenturu"
+            />
+            <PortfolioTile
+              item={heroPortfolio[1]}
+              className="md:col-start-2 md:col-span-1 md:row-span-1 h-56 md:h-auto"
+            />
+            <PortfolioTile
+              item={heroPortfolio[2]}
+              className="md:col-start-3 md:col-span-1 md:row-span-1 h-56 md:h-auto"
+            />
+            <PortfolioTile
+              item={heroPortfolio[3]}
+              className="md:col-start-2 md:col-span-2 md:row-span-1 h-56 md:h-auto"
+            />
+          </div>
+
+          <div className="flex justify-center mt-12">
+            <Button href="/portfolio" variant="outline">
+              Celé portfolio
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* GROWTH SECTION */}
+      <section className="relative overflow-hidden text-center px-6 py-28 md:py-32">
+        <div
+          aria-hidden="true"
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80vw] max-w-[800px] aspect-square rounded-full pointer-events-none"
+          style={{
+            background:
+              "radial-gradient(circle at center, rgba(230,48,48,0.06) 0%, transparent 60%)",
+          }}
+        />
+        <div className="relative max-w-(--container-narrow) mx-auto">
+          <Eyebrow>Naše filozofie</Eyebrow>
+          <h2 className="text-4xl md:text-5xl lg:text-6xl tracking-tight mb-6">
+            Rosteme <span className="mark-box">spolu</span> s vámi
+          </h2>
+          <div className="shine-divider w-16 h-[3px] bg-accent mx-auto my-6" />
+          <p className="text-lg text-text-muted max-w-xl mx-auto leading-relaxed">
+            Každý nový klient nás posouvá. S každou kampaní se učíme, zlepšujeme
+            nástroje a rozšiřujeme to, co umíme — a co se naučíme u jednoho
+            klienta, posíláme dál ostatním.
+          </p>
+          <p className="font-serif italic text-lg mt-8 text-text">
+            Proto do každé spolupráce dáváme všechno. Protože váš úspěch je i
+            ten náš.
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+      </section>
+
+      <Marquee />
+
+      {/* TESTIMONIAL */}
+      <section className="bg-dark text-white py-20 md:py-24">
+        <div className="mx-auto max-w-3xl px-6 text-center">
+          <span
+            className="block font-serif text-7xl text-accent leading-none mb-2 select-none"
+            aria-hidden="true"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            „
+          </span>
+          <blockquote className="font-display text-2xl md:text-3xl leading-snug -tracking-[0.5px] mb-6">
+            {featured.quote}
+          </blockquote>
+          <cite className="not-italic text-xs uppercase tracking-[3px] text-text-faint">
+            <strong className="block text-white tracking-[2px] mb-1">
+              {featured.name}
+            </strong>
+            {featured.context}
+          </cite>
         </div>
-      </main>
+      </section>
+
+      {/* FINAL CTA */}
+      <section className="text-center py-24 px-6">
+        <div className="max-w-(--container-narrow) mx-auto">
+          <Eyebrow>Pojďme si promluvit</Eyebrow>
+          <h2 className="text-4xl md:text-5xl mb-5">
+            Domluvte si nezávaznou schůzku
+          </h2>
+          <p className="text-text-muted max-w-xl mx-auto mb-8">
+            Posloucháme nejdřív, pak navrhujeme. Žádné šablony, žádné automation
+            — jen reálné výsledky pro váš byznys.
+          </p>
+          <Button href="/kontakt" variant="primary">
+            Domluvit schůzku
+          </Button>
+        </div>
+      </section>
+    </>
+  );
+}
+
+function Stat({ value, label }: { value: React.ReactNode; label: string }) {
+  return (
+    <div className="text-center">
+      <div className="text-text">{value}</div>
+      <span className="block text-xs text-text-faint uppercase tracking-[2px] mt-2">
+        {label}
+      </span>
     </div>
   );
 }
