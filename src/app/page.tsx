@@ -163,6 +163,7 @@ export default function HomePage() {
               { text: "vámi" },
             ]}
             ariaLabel="Rosteme spolu s vámi"
+            delay={1200}
             className="text-4xl md:text-5xl lg:text-6xl font-display font-black uppercase tracking-tight mb-6"
             cursorClassName="h-[0.75em] w-[3px]"
           />

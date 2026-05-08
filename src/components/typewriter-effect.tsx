@@ -21,19 +21,26 @@ export interface TypewriterWord {
 /**
  * Character-by-character typewriter reveal. Adapted from
  * aceternity/typewriter-effect (21st.dev) — adds per-word wrapper className
- * support and removes hardcoded text colors so it can match any brand.
+ * support, configurable start delay, and removes hardcoded text colors so
+ * it can match any brand.
  */
 export function TypewriterEffect({
   words,
   className,
   cursorClassName,
   ariaLabel,
+  delay = 0,
+  charDuration = 0.08,
 }: {
   words: TypewriterWord[];
   className?: string;
   cursorClassName?: string;
   /** Override the auto-derived aria-label (default: words joined with spaces) */
   ariaLabel?: string;
+  /** Milliseconds to wait after the section enters viewport before typing */
+  delay?: number;
+  /** Stagger between characters (seconds) */
+  charDuration?: number;
 }) {
   const wordsArray = words.map((w) => ({
     ...w,
@@ -44,14 +51,16 @@ export function TypewriterEffect({
   const isInView = useInView(scope, { once: true, amount: 0.3 });
 
   useEffect(() => {
-    if (isInView) {
+    if (!isInView) return;
+    const timeout = setTimeout(() => {
       animate(
         "span[data-char]",
         { display: "inline-block", opacity: 1, width: "fit-content" },
-        { duration: 0.3, delay: stagger(0.08), ease: "easeInOut" },
+        { duration: 0.3, delay: stagger(charDuration), ease: "easeInOut" },
       );
-    }
-  }, [isInView, animate]);
+    }, delay);
+    return () => clearTimeout(timeout);
+  }, [isInView, animate, delay, charDuration]);
 
   const fullText = words.map((w) => w.text).join(" ");
 
@@ -60,7 +69,7 @@ export function TypewriterEffect({
       role="heading"
       aria-level={2}
       aria-label={ariaLabel ?? fullText}
-      className={cn("inline-block", className)}
+      className={className}
     >
       <motion.span ref={scope} aria-hidden="true" className="inline">
         {wordsArray.map((word, wi) => (
