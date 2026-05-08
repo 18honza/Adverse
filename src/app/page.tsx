@@ -1,8 +1,10 @@
-import { Eyebrow, DividerRed } from "@/components/eyebrow";
+import Link from "next/link";
+import { Eyebrow } from "@/components/eyebrow";
 import { Button } from "@/components/ui/button";
 import { Marquee } from "@/components/marquee";
 import { StatCounter } from "@/components/stat-counter";
 import { PortfolioTile } from "@/components/portfolio-tile";
+import { FloatingPaths } from "@/components/floating-paths";
 import { services } from "@/lib/services";
 import { portfolioItems } from "@/lib/portfolio";
 import { testimonials } from "@/lib/testimonials";
@@ -13,28 +15,38 @@ export default function HomePage() {
 
   return (
     <>
-      {/* HERO */}
-      <section className="relative overflow-hidden text-center px-6 py-24 md:py-32">
+      {/* HERO — animated paths background, dark, viewport-fit */}
+      <section className="relative isolate overflow-hidden bg-dark text-white min-h-[85vh] flex items-center justify-center px-6 py-20">
+        {/* Animated SVG paths — two layers for depth */}
+        <div className="absolute inset-0">
+          <FloatingPaths position={1} />
+          <FloatingPaths position={-1} />
+        </div>
+        {/* Subtle vignette to focus content */}
         <div
           aria-hidden="true"
-          className="absolute top-0 bottom-[30%] left-6 w-px bg-gradient-to-b from-accent to-transparent accent-pulse hidden md:block"
+          className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/40 pointer-events-none"
         />
+        {/* Red top accent (consistent with header) */}
         <div
           aria-hidden="true"
-          className="absolute top-0 bottom-[30%] right-6 w-px bg-gradient-to-b from-accent to-transparent accent-pulse hidden md:block"
+          className="absolute top-0 left-0 right-0 h-[2px] bg-accent/60"
         />
 
-        <div className="relative max-w-(--container-narrow) mx-auto">
-          <Eyebrow>Digitální marketing</Eyebrow>
-          <h1 className="text-5xl sm:text-6xl md:text-7xl tracking-tight">
+        <div className="relative z-10 max-w-(--container-narrow) mx-auto text-center">
+          <Eyebrow className="text-accent">Digitální marketing</Eyebrow>
+          <h1 className="text-5xl sm:text-6xl md:text-7xl tracking-tight text-white">
             Výsledky,
             <br />
-            které <span className="mark-box">vidíte.</span>
+            které{" "}
+            <span className="bg-accent text-white px-3 inline-block">
+              vidíte.
+            </span>
           </h1>
-          <DividerRed />
-          <p className="text-lg text-text-muted max-w-xl mx-auto">
+          <hr className="w-8 h-[2px] bg-accent border-0 my-4 mx-auto" />
+          <p className="text-lg text-white/70 max-w-xl mx-auto">
             Meta &amp; Google reklamy, social media, weby a produkce.
-            <span className="block mt-2 font-serif italic text-text-faint text-base">
+            <span className="block mt-2 font-serif italic text-white/50 text-base">
               Každý klient je pro nás jedinečný.
             </span>
           </p>
@@ -43,40 +55,46 @@ export default function HomePage() {
             <Button href="/kontakt" variant="primary">
               Domluvit schůzku
             </Button>
-            <Button href="#sluzby" variant="outline">
+            <Link
+              href="#sluzby"
+              className="inline-flex items-center justify-center font-sans text-xs font-bold uppercase tracking-[2px] rounded-sm px-6 py-3 border-2 border-white text-white bg-transparent hover:bg-white hover:text-dark transition-colors"
+            >
               Naše služby ↓
-            </Button>
+            </Link>
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-3 gap-5 sm:gap-12 mt-16 pt-6 border-t border-divider max-w-3xl mx-auto">
+          <div className="grid grid-cols-3 gap-5 sm:gap-12 mt-12 pt-6 border-t border-white/15 max-w-3xl mx-auto">
             <Stat
               value={
                 <StatCounter
                   value={12}
                   suffix="+"
-                  className="font-display text-3xl md:text-4xl font-black"
+                  className="font-display text-3xl md:text-4xl font-black text-white"
                 />
               }
               label="Spokojených klientů"
+              dark
             />
             <Stat
               value={
-                <span className="font-display text-3xl md:text-4xl font-black">
+                <span className="font-display text-3xl md:text-4xl font-black text-white">
                   META + GGL
                 </span>
               }
               label="Certifikované reklamy"
+              dark
             />
             <Stat
               value={
                 <StatCounter
                   value={100}
                   suffix="%"
-                  className="font-display text-3xl md:text-4xl font-black"
+                  className="font-display text-3xl md:text-4xl font-black text-white"
                 />
               }
               label="Osobní přístup"
+              dark
             />
           </div>
         </div>
@@ -221,11 +239,23 @@ export default function HomePage() {
   );
 }
 
-function Stat({ value, label }: { value: React.ReactNode; label: string }) {
+function Stat({
+  value,
+  label,
+  dark = false,
+}: {
+  value: React.ReactNode;
+  label: string;
+  dark?: boolean;
+}) {
   return (
     <div className="text-center">
-      <div className="text-text">{value}</div>
-      <span className="block text-xs text-text-faint uppercase tracking-[2px] mt-2">
+      <div>{value}</div>
+      <span
+        className={`block text-xs uppercase tracking-[2px] mt-2 ${
+          dark ? "text-white/55" : "text-text-faint"
+        }`}
+      >
         {label}
       </span>
     </div>
