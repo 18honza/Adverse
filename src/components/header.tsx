@@ -115,6 +115,8 @@ function NavLink({
   primary: boolean;
   active: boolean;
 }) {
+  // Primary CTA (Kontakt) keeps its red pill — it's visually the strongest
+  // call to action in the nav and shouldn't blend with the others.
   if (primary) {
     return (
       <Link
@@ -125,15 +127,45 @@ function NavLink({
       </Link>
     );
   }
+
+  // Non-primary items: 3-layer hover effect adapted from minhxthanh/21st.dev.
+  //   1. Text turns from text-color → white as the box fills.
+  //   2. Top + bottom borders fly in from doubled vertical scale → 1.
+  //   3. Black background fills from the top down (origin-top scale 0 → 1).
   return (
     <Link
       href={href}
-      className={cn(
-        "text-xs font-bold uppercase tracking-[2px] transition-colors",
-        active ? "text-accent" : "text-text hover:text-accent",
-      )}
+      className="relative inline-block group"
     >
-      {label}
+      <span
+        className={cn(
+          "relative z-10 block px-4 py-2.5 text-xs font-bold uppercase tracking-[2px]",
+          "transition-colors duration-300 group-hover:text-white",
+          active ? "text-accent" : "text-text",
+        )}
+      >
+        {label}
+      </span>
+      {/* Top + bottom borders — start at scaleY(2), compress to 1 on hover */}
+      <span
+        aria-hidden="true"
+        className={cn(
+          "absolute inset-0 border-t-2 border-b-2 border-text",
+          "scale-y-[2] opacity-0 origin-center",
+          "transition-all duration-300",
+          "group-hover:scale-y-100 group-hover:opacity-100",
+        )}
+      />
+      {/* Background fill — drops from top */}
+      <span
+        aria-hidden="true"
+        className={cn(
+          "absolute top-[2px] left-0 w-full h-full bg-text",
+          "scale-0 opacity-0 origin-top",
+          "transition-all duration-300",
+          "group-hover:scale-100 group-hover:opacity-100",
+        )}
+      />
     </Link>
   );
 }
