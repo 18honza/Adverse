@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { PageHero, FinalCta } from "@/components/page-hero";
 import { Eyebrow } from "@/components/eyebrow";
+import { TestimonialsColumn } from "@/components/testimonials-columns";
 import { testimonials } from "@/lib/testimonials";
 
 export const metadata: Metadata = {
@@ -19,32 +20,27 @@ export default function ReferencePage() {
       />
 
       <section className="mx-auto max-w-(--container-default) px-6 py-16 md:py-20">
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {testimonials.map((t) => (
-            <article
-              key={t.name}
-              className="p-8 border border-divider bg-bg flex flex-col gap-4"
-            >
-              <span className="text-xs font-bold uppercase tracking-[2px] text-accent self-start">
-                {t.industry}
-              </span>
-              <span
-                className="font-serif text-5xl text-accent leading-[0.6] -mb-2"
-                aria-hidden="true"
-              >
-                „
-              </span>
-              <blockquote className="text-base leading-relaxed">
-                {t.quote}
-              </blockquote>
-              <cite className="not-italic text-xs uppercase tracking-[2px] text-text-faint mt-auto">
-                <strong className="block text-text tracking-[1px] mb-1">
-                  {t.name}
-                </strong>
-                {t.context}
-              </cite>
-            </article>
-          ))}
+        <div
+          className={
+            "relative flex justify-center gap-6 mx-auto " +
+            "max-h-[640px] md:max-h-[720px] overflow-hidden " +
+            "[mask-image:linear-gradient(to_bottom,transparent,black_15%,black_85%,transparent)]"
+          }
+        >
+          <TestimonialsColumn
+            testimonials={[testimonials[0], testimonials[3]]}
+            duration={22}
+          />
+          <TestimonialsColumn
+            testimonials={[testimonials[1], testimonials[4]]}
+            duration={28}
+            className="hidden md:block"
+          />
+          <TestimonialsColumn
+            testimonials={[testimonials[2], testimonials[5]]}
+            duration={25}
+            className="hidden lg:block"
+          />
         </div>
       </section>
 

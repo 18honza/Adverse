@@ -3,6 +3,8 @@ export interface Testimonial {
   name: string;
   industry: "Realitní" | "Cestovní";
   context: string;
+  /** Optional avatar URL — falls back to initials badge when missing */
+  image?: string;
 }
 
 export const testimonials: Testimonial[] = [
