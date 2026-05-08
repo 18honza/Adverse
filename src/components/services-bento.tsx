@@ -66,7 +66,10 @@ export function ServicesBento() {
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: ref,
-    offset: ["start end", "center center"],
+    // Animation only starts once the section's top has scrolled to 50% of the
+    // viewport (i.e. the section is already meaningfully in view) and finishes
+    // when the section center hits viewport center.
+    offset: ["start 50%", "center center"],
   });
 
   return (
