@@ -5,7 +5,7 @@ import { Marquee } from "@/components/marquee";
 import { StatCounter } from "@/components/stat-counter";
 import { PortfolioTile } from "@/components/portfolio-tile";
 import { FloatingPaths } from "@/components/floating-paths";
-import { services } from "@/lib/services";
+import { ServicesBento } from "@/components/services-bento";
 import { portfolioItems } from "@/lib/portfolio";
 import { testimonials } from "@/lib/testimonials";
 
@@ -100,37 +100,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* SERVICES OVERVIEW */}
-      <section id="sluzby" className="bg-surface-alt py-20 md:py-24">
-        <div className="mx-auto max-w-(--container-default) px-6">
-          <header className="text-center mb-12">
-            <Eyebrow>Co umíme</Eyebrow>
-            <h2 className="text-4xl md:text-5xl">Marketing, který se vyplatí</h2>
-          </header>
-
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {services.map((s) => {
-              const Icon = s.icon;
-              return (
-                <article
-                  key={s.slug}
-                  className="group p-8 border border-divider bg-bg transition-all duration-150 hover:border-accent hover:-translate-y-0.5"
-                >
-                  <Icon className="w-8 h-8 text-accent mb-4" strokeWidth={2} />
-                  <h3 className="text-lg mb-3">{s.title}</h3>
-                  <p className="text-sm text-text-muted mb-4">{s.short}</p>
-                  <a
-                    href={`/sluzby#${s.slug}`}
-                    className="text-xs font-bold uppercase tracking-[2px] text-accent"
-                  >
-                    Více →
-                  </a>
-                </article>
-              );
-            })}
-          </div>
-        </div>
-      </section>
+      {/* SERVICES — bento grid with scroll-linked expansion */}
+      <ServicesBento />
 
       {/* PORTFOLIO TEASER */}
       <section className="py-20 md:py-24">
