@@ -1,11 +1,11 @@
 import Link from "next/link";
 import { Eyebrow } from "@/components/eyebrow";
 import { Button } from "@/components/ui/button";
-import { Marquee } from "@/components/marquee";
 import { StatCounter } from "@/components/stat-counter";
 import { PortfolioTile } from "@/components/portfolio-tile";
 import { FloatingPaths } from "@/components/floating-paths";
 import { ServicesBento } from "@/components/services-bento";
+import { TypewriterEffect } from "@/components/typewriter-effect";
 import { portfolioItems } from "@/lib/portfolio";
 import { testimonials } from "@/lib/testimonials";
 
@@ -151,9 +151,21 @@ export default function HomePage() {
         />
         <div className="relative max-w-(--container-narrow) mx-auto">
           <Eyebrow>Naše filozofie</Eyebrow>
-          <h2 className="text-4xl md:text-5xl lg:text-6xl tracking-tight mb-6">
-            Rosteme <span className="mark-box">spolu</span> s vámi
-          </h2>
+          <TypewriterEffect
+            words={[
+              { text: "Rosteme" },
+              {
+                text: "spolu",
+                className: "text-white",
+                wrapperClassName: "bg-text px-3",
+              },
+              { text: "s" },
+              { text: "vámi" },
+            ]}
+            ariaLabel="Rosteme spolu s vámi"
+            className="text-4xl md:text-5xl lg:text-6xl font-display font-black uppercase tracking-tight mb-6"
+            cursorClassName="h-[0.75em] w-[3px]"
+          />
           <div className="shine-divider w-16 h-[3px] bg-accent mx-auto my-6" />
           <p className="text-lg text-text-muted max-w-xl mx-auto leading-relaxed">
             Každý nový klient nás posouvá. S každou kampaní se učíme, zlepšujeme
@@ -166,8 +178,6 @@ export default function HomePage() {
           </p>
         </div>
       </section>
-
-      <Marquee />
 
       {/* TESTIMONIAL */}
       <section className="bg-dark text-white py-20 md:py-24">
