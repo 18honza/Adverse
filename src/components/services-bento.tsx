@@ -73,15 +73,13 @@ export function ServicesBento() {
     <section
       id="sluzby"
       ref={ref}
-      className="bg-dark text-white py-24 md:py-32 px-6 overflow-hidden"
+      className="bg-bg text-text py-24 md:py-32 px-6 overflow-hidden"
     >
       <header className="text-center mb-14 md:mb-20">
         <span className="inline-block text-xs font-bold uppercase tracking-[4px] text-accent mb-4">
           Co umíme
         </span>
-        <h2 className="text-4xl md:text-5xl text-white">
-          Marketing, který se vyplatí
-        </h2>
+        <h2 className="text-4xl md:text-5xl">Marketing, který se vyplatí</h2>
       </header>
 
       <div
@@ -120,15 +118,16 @@ function BentoCardItem({
   index: number;
   scrollProgress: MotionValue<number>;
 }) {
-  // Each card starts its grow-in slightly later than the previous one — gives
-  // a cascade ripple as the section enters the viewport.
-  const stagger = 0.06;
+  // Each card starts its grow-in noticeably later than the previous one —
+  // gives a clear cascade ripple as the section enters the viewport.
+  const stagger = 0.1;
+  const duration = 0.4;
   const start = index * stagger;
-  const end = Math.min(start + 0.45, 1);
+  const end = Math.min(start + duration, 1);
 
-  const scale = useTransform(scrollProgress, [start, end], [0.86, 1]);
-  const opacity = useTransform(scrollProgress, [start, end], [0.15, 1]);
-  const y = useTransform(scrollProgress, [start, end], [40, 0]);
+  const scale = useTransform(scrollProgress, [start, end], [0.55, 1]);
+  const opacity = useTransform(scrollProgress, [start, end], [0, 1]);
+  const y = useTransform(scrollProgress, [start, end], [60, 0]);
 
   const Icon = service.icon;
 
