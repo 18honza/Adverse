@@ -144,7 +144,7 @@ function BentoCardItem({
     <motion.article
       style={{ scale, opacity, y, background: card.background }}
       className={cn(
-        "relative overflow-hidden rounded-xl md:rounded-2xl",
+        "relative overflow-hidden",
         "border border-divider hover:border-text/30",
         "min-h-[220px] md:min-h-0",
         "flex flex-col justify-end group transition-colors duration-300",
