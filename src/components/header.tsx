@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Phone, Mail } from "lucide-react";
 import { site } from "@/lib/site";
 import { cn } from "@/lib/cn";
 
@@ -16,17 +16,35 @@ export function Header() {
   // Close mobile menu when route changes
   useEffect(() => setOpen(false), [pathname]);
 
-  // Lock body scroll when mobile menu open
+  // Body scroll lock that preserves position on iOS Safari.
+  // The naive `body.style.overflow = "hidden"` approach loses the scroll
+  // position on iOS — page jumps to the top when the menu opens.
+  // The position-fixed-with-saved-scroll trick is the bulletproof fix.
   useEffect(() => {
-    document.body.style.overflow = open ? "hidden" : "";
+    if (!open) return;
+
+    const scrollY = window.scrollY;
+    const body = document.body;
+
+    body.style.position = "fixed";
+    body.style.top = `-${scrollY}px`;
+    body.style.left = "0";
+    body.style.right = "0";
+    body.style.width = "100%";
+
     return () => {
-      document.body.style.overflow = "";
+      body.style.position = "";
+      body.style.top = "";
+      body.style.left = "";
+      body.style.right = "";
+      body.style.width = "";
+      window.scrollTo(0, scrollY);
     };
   }, [open]);
 
   return (
     <header className="sticky top-0 z-50 bg-bg border-b border-divider">
-      <div className="mx-auto max-w-(--container-default) flex items-center justify-between px-6 py-4 gap-6">
+      <div className="mx-auto max-w-(--container-default) flex items-center justify-between px-5 md:px-6 py-3 md:py-4 gap-6">
         <Link
           href="/"
           aria-label="Adverse — domovská stránka"
@@ -38,21 +56,27 @@ export function Header() {
             width={120}
             height={40}
             priority
-            className="h-9 w-auto"
+            className="h-8 md:h-9 w-auto"
           />
         </Link>
 
         <button
           aria-expanded={open}
-          aria-controls="primary-nav"
+          aria-controls="mobile-menu"
           aria-label={open ? "Zavřít menu" : "Otevřít menu"}
           onClick={() => setOpen((v) => !v)}
-          className="md:hidden p-2 -mr-2"
+          className="md:hidden p-2 -mr-2 relative z-[70]"
         >
+          {/* Toggle icon — keep it stable visually so the user always sees the
+              right action (X when open, hamburger when closed). */}
           {open ? <X size={24} /> : <Menu size={24} />}
         </button>
 
-        <nav id="primary-nav" className="hidden md:flex items-center gap-8">
+        <nav
+          id="primary-nav"
+          className="hidden md:flex items-center gap-8"
+          aria-label="Hlavní navigace"
+        >
           {site.nav.map((item) => (
             <NavLink
               key={item.href}
@@ -67,43 +91,136 @@ export function Header() {
 
       <div className="h-[3px] bg-accent" />
 
+      {/* Fullscreen mobile menu overlay */}
       <AnimatePresence>
-        {open && (
-          <motion.div
-            id="mobile-nav"
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.2 }}
-            className="md:hidden absolute top-full left-0 right-0 bg-bg border-b border-divider"
-          >
-            <ul className="flex flex-col px-6 py-2">
-              {site.nav.map((item) => (
-                <li
-                  key={item.href}
-                  className="border-b border-divider last:border-b-0"
-                >
-                  <Link
-                    href={item.href}
-                    className={cn(
-                      "block py-4 text-xs font-bold uppercase tracking-[2px] transition-colors",
-                      pathname === item.href
-                        ? "text-accent"
-                        : "text-text hover:text-accent",
-                    )}
-                  >
-                    {item.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </motion.div>
-        )}
+        {open && <MobileMenu pathname={pathname} onClose={() => setOpen(false)} />}
       </AnimatePresence>
     </header>
   );
 }
 
+// =====================================================================
+// Mobile menu — fullscreen overlay
+// =====================================================================
+function MobileMenu({
+  pathname,
+  onClose,
+}: {
+  pathname: string;
+  onClose: () => void;
+}) {
+  return (
+    <motion.div
+      id="mobile-menu"
+      key="mobile-menu"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.2 }}
+      className="md:hidden fixed inset-0 z-[60] bg-bg flex flex-col overflow-hidden"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Mobilní navigace"
+    >
+      {/* Header offset so logo + close X stay aligned with the underlying header */}
+      <div className="h-[59px] shrink-0 border-b border-divider" />
+      <div className="h-[3px] bg-accent shrink-0" />
+
+      {/* Nav items */}
+      <motion.nav
+        className="flex-1 flex flex-col justify-center px-6 -mt-12 overflow-y-auto"
+        initial="hidden"
+        animate="visible"
+        variants={{
+          visible: { transition: { staggerChildren: 0.06, delayChildren: 0.05 } },
+        }}
+      >
+        <ul>
+          {site.nav.map((item, i) => {
+            const isActive = pathname === item.href;
+            return (
+              <motion.li
+                key={item.href}
+                variants={{
+                  hidden: { opacity: 0, x: 20 },
+                  visible: { opacity: 1, x: 0 },
+                }}
+                transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                className="border-b border-divider"
+              >
+                <Link
+                  href={item.href}
+                  onClick={onClose}
+                  className={cn(
+                    "flex items-baseline gap-5 py-5 font-display font-black uppercase tracking-tight",
+                    "text-3xl",
+                    "transition-colors active:text-accent",
+                    isActive ? "text-accent" : "text-text",
+                  )}
+                >
+                  <span className="text-[10px] tracking-[3px] text-accent shrink-0 w-5 font-sans">
+                    0{i + 1}
+                  </span>
+                  <span className="flex-1">{item.label}</span>
+                  {isActive && (
+                    <span className="text-xs text-accent" aria-hidden="true">
+                      ←
+                    </span>
+                  )}
+                </Link>
+              </motion.li>
+            );
+          })}
+        </ul>
+      </motion.nav>
+
+      {/* Quick contact — fixed at bottom */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.3 }}
+        className="px-6 py-5 border-t border-divider bg-surface-alt shrink-0"
+      >
+        <div className="text-[10px] uppercase tracking-[3px] text-accent font-bold mb-3">
+          Rychlý kontakt
+        </div>
+        <div className="space-y-2">
+          {site.team.map((p) => (
+            <div
+              key={p.email}
+              className="flex items-center justify-between text-sm"
+            >
+              <span className="font-bold text-text">{p.name}</span>
+              <div className="flex items-center gap-3 text-text-muted">
+                <a
+                  href={`tel:${p.phone}`}
+                  aria-label={`Zavolat ${p.name}`}
+                  className="flex items-center gap-1.5 active:text-accent transition-colors"
+                  onClick={onClose}
+                >
+                  <Phone size={14} className="text-accent" />
+                  {p.phoneDisplay}
+                </a>
+              </div>
+            </div>
+          ))}
+          <a
+            href={`mailto:${site.team[0].email}`}
+            className="flex items-center gap-2 pt-2 text-text-muted text-xs active:text-accent transition-colors"
+            onClick={onClose}
+          >
+            <Mail size={14} className="text-accent" />
+            {site.team[0].email}
+          </a>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
+// =====================================================================
+// Desktop NavLink — 3-layer hover effect (minhxthanh / 21st.dev)
+// =====================================================================
 function NavLink({
   href,
   label,
@@ -115,8 +232,6 @@ function NavLink({
   primary: boolean;
   active: boolean;
 }) {
-  // Primary CTA (Kontakt) keeps its red pill — it's visually the strongest
-  // call to action in the nav and shouldn't blend with the others.
   if (primary) {
     return (
       <Link
@@ -128,15 +243,8 @@ function NavLink({
     );
   }
 
-  // Non-primary items: 3-layer hover effect adapted from minhxthanh/21st.dev.
-  //   1. Text turns from text-color → white as the box fills.
-  //   2. Top + bottom borders fly in from doubled vertical scale → 1.
-  //   3. Black background fills from the top down (origin-top scale 0 → 1).
   return (
-    <Link
-      href={href}
-      className="relative inline-block group"
-    >
+    <Link href={href} className="relative inline-block group">
       <span
         className={cn(
           "relative z-10 block px-4 py-2.5 text-xs font-bold uppercase tracking-[2px]",
@@ -146,7 +254,6 @@ function NavLink({
       >
         {label}
       </span>
-      {/* Top + bottom borders — start at scaleY(2), compress to 1 on hover */}
       <span
         aria-hidden="true"
         className={cn(
@@ -156,7 +263,6 @@ function NavLink({
           "group-hover:scale-y-100 group-hover:opacity-100",
         )}
       />
-      {/* Background fill — drops from top */}
       <span
         aria-hidden="true"
         className={cn(

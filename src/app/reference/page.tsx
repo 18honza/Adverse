@@ -19,11 +19,23 @@ export default function ReferencePage() {
         description="Pracujeme tak, jako by váš byznys byl náš vlastní. Tady je, co o spolupráci říkají lidé, se kterými jsme pracovali."
       />
 
-      <section className="mx-auto max-w-(--container-default) px-6 py-16 md:py-20">
+      <section className="mx-auto max-w-(--container-default) px-6 py-12 md:py-20">
+        {/* Mobile: single scrolling column with all 6 testimonials */}
         <div
           className={
-            "relative flex justify-center gap-6 mx-auto " +
-            "max-h-[640px] md:max-h-[720px] overflow-hidden " +
+            "md:hidden relative flex justify-center mx-auto " +
+            "max-h-[560px] overflow-hidden " +
+            "[mask-image:linear-gradient(to_bottom,transparent,black_12%,black_88%,transparent)]"
+          }
+        >
+          <TestimonialsColumn testimonials={testimonials} duration={45} />
+        </div>
+
+        {/* Desktop: 3 columns interleaved across industries */}
+        <div
+          className={
+            "hidden md:flex relative justify-center gap-6 mx-auto " +
+            "max-h-[720px] overflow-hidden " +
             "[mask-image:linear-gradient(to_bottom,transparent,black_15%,black_85%,transparent)]"
           }
         >
@@ -34,7 +46,6 @@ export default function ReferencePage() {
           <TestimonialsColumn
             testimonials={[testimonials[1], testimonials[4]]}
             duration={28}
-            className="hidden md:block"
           />
           <TestimonialsColumn
             testimonials={[testimonials[2], testimonials[5]]}

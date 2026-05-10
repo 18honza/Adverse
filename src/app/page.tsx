@@ -65,13 +65,13 @@ export default function HomePage() {
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-3 gap-5 sm:gap-12 mt-12 pt-6 border-t border-white/15 max-w-3xl mx-auto">
+          <div className="grid grid-cols-3 gap-3 sm:gap-12 mt-10 sm:mt-12 pt-6 border-t border-white/15 max-w-3xl mx-auto">
             <Stat
               value={
                 <StatCounter
                   value={12}
                   suffix="+"
-                  className="font-display text-3xl md:text-4xl font-black text-white"
+                  className="font-display text-2xl sm:text-3xl md:text-4xl font-black text-white"
                 />
               }
               label="Spokojených klientů"
@@ -79,7 +79,7 @@ export default function HomePage() {
             />
             <Stat
               value={
-                <span className="font-display text-3xl md:text-4xl font-black text-white">
+                <span className="font-display text-base sm:text-2xl md:text-4xl font-black text-white whitespace-nowrap">
                   META + GGL
                 </span>
               }
@@ -91,7 +91,7 @@ export default function HomePage() {
                 <StatCounter
                   value={100}
                   suffix="%"
-                  className="font-display text-3xl md:text-4xl font-black text-white"
+                  className="font-display text-2xl sm:text-3xl md:text-4xl font-black text-white"
                 />
               }
               label="Osobní přístup"
