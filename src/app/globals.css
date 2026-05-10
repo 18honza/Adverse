@@ -29,6 +29,9 @@
 html {
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
+  /* Prevent any accidental horizontal scroll without breaking sticky/fixed
+     positioning the way `overflow-x: hidden` does. */
+  overflow-x: clip;
 }
 
 body {
@@ -37,6 +40,7 @@ body {
   background: var(--color-bg);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  overflow-x: clip;
 }
 
 h1, h2, h3, h4 {

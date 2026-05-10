@@ -10,9 +10,9 @@ export function PageHero({
   description?: string;
 }) {
   return (
-    <section className="text-center px-6 py-24 md:py-28 border-b border-divider">
+    <section className="text-center px-6 py-16 md:py-24 lg:py-28 border-b border-divider">
       <Eyebrow>{eyebrow}</Eyebrow>
-      <h1 className="text-4xl md:text-5xl">{title}</h1>
+      <h1 className="text-3xl sm:text-4xl md:text-5xl">{title}</h1>
       {description && (
         <p className="text-text-muted max-w-xl mx-auto mt-4">{description}</p>
       )}
@@ -32,10 +32,10 @@ export function FinalCta({
   button?: string;
 }) {
   return (
-    <section className="text-center py-24 px-6">
+    <section className="text-center py-16 md:py-24 px-6">
       <div className="max-w-(--container-narrow) mx-auto">
         <Eyebrow>{eyebrow}</Eyebrow>
-        <h2 className="text-4xl md:text-5xl mb-5">{title}</h2>
+        <h2 className="text-3xl sm:text-4xl md:text-5xl mb-5">{title}</h2>
         {description && (
           <p className="text-text-muted max-w-xl mx-auto mb-8">{description}</p>
         )}

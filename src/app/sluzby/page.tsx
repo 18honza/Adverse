@@ -60,18 +60,20 @@ export default function SluzbyPage() {
       ))}
 
       {/* Universal commitments — 3 small cards */}
-      <section className="bg-surface-alt py-20 md:py-24">
+      <section className="bg-surface-alt py-16 md:py-24">
         <div className="mx-auto max-w-(--container-default) px-6">
-          <header className="text-center mb-12 md:mb-14">
+          <header className="text-center mb-10 md:mb-14">
             <Eyebrow>Ke každé službě</Eyebrow>
-            <h2 className="text-3xl md:text-4xl">Co dostanete vždycky</h2>
+            <h2 className="text-2xl md:text-3xl lg:text-4xl">
+              Co dostanete vždycky
+            </h2>
             <p className="text-text-muted max-w-xl mx-auto mt-4">
               Tři věci, které platí napříč všemi službami — protože tak děláme
               marketing my.
             </p>
           </header>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6 max-w-5xl mx-auto">
             {universals.map(({ icon: Icon, ...u }) => (
               <AnimatedCard key={u.title}>
                 <CardVisual
