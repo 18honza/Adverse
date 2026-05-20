@@ -4,6 +4,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { services } from "@/lib/services";
+import { ServiceGraphic } from "@/components/service-graphic";
 import { cn } from "@/lib/cn";
 
 interface Props {
@@ -74,16 +75,19 @@ export function ServiceSection({ slug, index }: Props) {
               style={{ background: VISUAL_BG[service.slug] }}
             />
 
-            {/* Faint icon as ambient watermark */}
+            {/* Decorative graphic (dot grid + per-service illustration) */}
+            <ServiceGraphic slug={service.slug} />
+
+            {/* Larger faint icon as ambient watermark (behind the graphic) */}
             <Icon
               aria-hidden="true"
-              strokeWidth={1.1}
-              className="absolute -bottom-10 -right-10 w-[70%] h-[70%] text-white/[0.07]"
+              strokeWidth={1}
+              className="absolute -bottom-8 -left-8 w-[50%] h-[50%] text-white/[0.05] z-[1]"
             />
 
             {/* Service number, top-left */}
             <div className="absolute top-5 left-5 md:top-8 md:left-8 z-10">
-              <span className="font-display font-black text-3xl md:text-4xl text-white/40 leading-none">
+              <span className="font-display font-black text-3xl md:text-4xl text-white/45 leading-none">
                 {service.num}
               </span>
               <span className="block text-[10px] tracking-[3px] text-accent uppercase font-bold mt-2">
@@ -94,7 +98,7 @@ export function ServiceSection({ slug, index }: Props) {
             {/* Decorative red corner accent, bottom-right */}
             <div
               aria-hidden="true"
-              className="absolute bottom-5 right-5 md:bottom-8 md:right-8 w-12 h-[2px] bg-accent"
+              className="absolute bottom-5 right-5 md:bottom-8 md:right-8 w-12 h-[2px] bg-accent z-10"
             />
           </motion.div>
 

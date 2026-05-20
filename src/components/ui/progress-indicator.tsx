@@ -108,8 +108,8 @@ export function ProgressIndicator({
                 disabled={pending}
                 className={cn(
                   "px-6 py-3 rounded-full whitespace-nowrap shrink-0",
-                  "bg-surface-alt border border-divider text-text",
-                  "hover:border-text transition-colors",
+                  "bg-text border border-text text-white",
+                  "hover:bg-black hover:border-black transition-colors",
                   "font-bold text-xs uppercase tracking-[2px]",
                   "disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer",
                 )}

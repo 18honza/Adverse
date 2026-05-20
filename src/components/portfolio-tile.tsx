@@ -21,13 +21,13 @@ export function PortfolioTile({
         "group relative block overflow-hidden border border-divider bg-surface-alt",
         className,
       )}
-      style={item.image ? undefined : { backgroundImage: item.gradient }}
+      style={item.cover ? undefined : { backgroundImage: item.gradient }}
     >
       {/* Image (with gradient fallback already on parent) */}
-      {item.image && (
+      {item.cover && (
         // eslint-disable-next-line @next/next/no-img-element
         <img
-          src={item.image}
+          src={item.cover}
           alt=""
           loading="lazy"
           className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.04]"

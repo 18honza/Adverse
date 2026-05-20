@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { PortfolioTile } from "@/components/portfolio-tile";
+import { PortfolioFlipCard } from "@/components/portfolio-flip-card";
 import {
   filterLabels,
   portfolioItems,
@@ -61,8 +61,9 @@ export function PortfolioFilter() {
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.96 }}
                 transition={{ duration: 0.25 }}
+                className="aspect-[4/3]"
               >
-                <PortfolioTile item={item} className="aspect-[4/3]" />
+                <PortfolioFlipCard item={item} className="w-full h-full" />
               </motion.div>
             ))}
           </AnimatePresence>

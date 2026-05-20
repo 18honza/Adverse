@@ -10,20 +10,15 @@ import {
 } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import { services, type Service } from "@/lib/services";
+import { ServiceGraphic } from "@/components/service-graphic";
 import { cn } from "@/lib/cn";
 
 interface BentoCard {
   slug: string;
   /** Tailwind grid placement classes for md+ breakpoint */
   span: string;
-  /** Fallback gradient when the image is missing or fails to load */
+  /** Layered background — usually a dark gradient + a soft red glow */
   background: string;
-  /**
-   * Image under /public/img/services/. The file does not need to exist —
-   * if missing, the gradient background is shown. Drop in a JPG with the
-   * matching slug to swap visuals without touching code.
-   */
-  image: string;
   /** Hero card gets a larger title and one-line description */
   hero?: boolean;
 }
@@ -32,41 +27,39 @@ const layout: BentoCard[] = [
   {
     slug: "meta-ads",
     span: "md:col-span-3 md:row-span-1",
-    background: "linear-gradient(135deg, #2a2a2a 0%, #0d0d0d 100%)",
-    image: "/img/services/meta-ads.jpg",
+    background:
+      "radial-gradient(circle at 85% 20%, rgba(230,48,48,0.18) 0%, transparent 55%), linear-gradient(135deg, #1f1f1f 0%, #0d0d0d 100%)",
   },
   {
     slug: "weby",
     span: "md:col-span-9 md:row-span-1",
     background:
-      "linear-gradient(120deg, #1a1a1a 0%, #0d0d0d 60%, #2a2a2a 100%)",
-    image: "/img/services/weby.jpg",
+      "radial-gradient(circle at 80% 50%, rgba(230,48,48,0.18) 0%, transparent 50%), linear-gradient(120deg, #1a1a1a 0%, #0d0d0d 50%, #1f1f1f 100%)",
     hero: true,
   },
   {
     slug: "social-media",
     span: "md:col-span-3 md:row-span-2",
-    background: "linear-gradient(180deg, #2a2a2a 0%, #0d0d0d 100%)",
-    image: "/img/services/social-media.jpg",
+    background:
+      "radial-gradient(circle at 50% 90%, rgba(230,48,48,0.15) 0%, transparent 50%), linear-gradient(180deg, #1f1f1f 0%, #0d0d0d 100%)",
   },
   {
     slug: "google-ads",
     span: "md:col-span-5 md:row-span-1",
-    background: "linear-gradient(135deg, #0d0d0d 0%, #2a2a2a 100%)",
-    image: "/img/services/google-ads.jpg",
+    background:
+      "radial-gradient(circle at 15% 80%, rgba(230,48,48,0.16) 0%, transparent 55%), linear-gradient(135deg, #0d0d0d 0%, #1f1f1f 100%)",
   },
   {
     slug: "video",
     span: "md:col-span-4 md:row-span-1",
-    background: "linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%)",
-    image: "/img/services/video.jpg",
+    background:
+      "radial-gradient(circle at 75% 25%, rgba(230,48,48,0.16) 0%, transparent 55%), linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%)",
   },
   {
     slug: "grafika",
     span: "md:col-span-9 md:row-span-1",
     background:
-      "linear-gradient(90deg, #1a1a1a 0%, #2a2a2a 50%, #0d0d0d 100%)",
-    image: "/img/services/grafika.jpg",
+      "radial-gradient(circle at 25% 50%, rgba(230,48,48,0.15) 0%, transparent 50%), linear-gradient(90deg, #1a1a1a 0%, #1f0d0d 50%, #0d0d0d 100%)",
   },
 ];
 
@@ -151,23 +144,13 @@ function BentoCardItem({
         card.span,
       )}
     >
-      {/* Photo (silently removes itself if file is missing) */}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={card.image}
-        alt=""
-        loading="lazy"
-        onError={(e) => {
-          e.currentTarget.remove();
-        }}
-        className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
-      />
+      {/* Decorative graphics — dot grid + per-service composition */}
+      <ServiceGraphic slug={service.slug} />
 
-      {/* Bottom-up dark overlay for text legibility — same pattern used on
-          portfolio tiles, keeps the visual language consistent. */}
+      {/* Bottom-up overlay so the title + meta on a busier graphic stay legible */}
       <div
         aria-hidden="true"
-        className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent pointer-events-none"
+        className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/85 via-black/40 to-transparent pointer-events-none"
       />
 
       {/* Top-right corner link (glassmorphism) */}

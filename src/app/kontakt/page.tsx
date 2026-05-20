@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { Phone, Mail } from "lucide-react";
+import Link from "next/link";
+import { Phone, Mail, ArrowRight } from "lucide-react";
 import { PageHero } from "@/components/page-hero";
 import { ContactForm } from "@/components/contact-form";
 import { site } from "@/lib/site";
@@ -20,7 +21,7 @@ export default function KontaktPage() {
       />
 
       {/* Contact cards */}
-      <section className="mx-auto max-w-3xl grid sm:grid-cols-2 gap-6 px-6 my-16">
+      <section className="mx-auto max-w-3xl grid sm:grid-cols-2 gap-6 px-6 mt-12 md:mt-16">
         {site.team.map((p) => (
           <article key={p.email} className="p-8 border border-divider bg-bg">
             <h3 className="text-base mb-2">{p.name}</h3>
@@ -48,6 +49,17 @@ export default function KontaktPage() {
           </article>
         ))}
       </section>
+
+      {/* Více o nás — link to /o-nas */}
+      <div className="flex justify-center my-8 md:my-10 px-6">
+        <Link
+          href="/o-nas"
+          className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[2px] text-text hover:text-accent transition-colors group border-b-2 border-transparent hover:border-accent pb-1"
+        >
+          Více o nás
+          <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" />
+        </Link>
+      </div>
 
       {/* Form */}
       <section className="px-6 py-12 border-t border-divider">
