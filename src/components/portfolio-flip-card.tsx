@@ -82,6 +82,11 @@ export function PortfolioFlipCard({
             backfaceVisibility: "hidden",
             WebkitBackfaceVisibility: "hidden",
             backgroundImage: item.cover ? undefined : item.gradient,
+            // 3D hit-testing is unreliable across browsers — explicitly
+            // disable pointer events on the face that's facing away so
+            // clicks always reach the visible side (especially the X
+            // button on the back face).
+            pointerEvents: flipped ? "none" : "auto",
           }}
         >
           {item.cover && (
@@ -128,6 +133,9 @@ export function PortfolioFlipCard({
             transform: "rotateY(180deg)",
             backfaceVisibility: "hidden",
             WebkitBackfaceVisibility: "hidden",
+            // Inverse of the front — only receive clicks when this face
+            // is the one facing the viewer.
+            pointerEvents: flipped ? "auto" : "none",
           }}
           aria-hidden={!flipped}
         >

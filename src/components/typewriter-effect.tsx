@@ -1,31 +1,32 @@
 "use client";
 
 import * as React from "react";
-import { motion, useInView } from "framer-motion";
-import { useRef } from "react";
+import {
+  motion,
+  stagger,
+  useAnimate,
+  useInView,
+} from "framer-motion";
+import { useEffect } from "react";
 import { cn } from "@/lib/cn";
 
 export interface TypewriterWord {
   text: string;
-  /** Applied to each character span inside the word */
+  /** Applied to each character span in the word */
   className?: string;
   /** Applied to the wrapper around the whole word — perfect for mark-box style */
   wrapperClassName?: string;
 }
 
 /**
- * Character-by-character reveal with stable layout. Each character lives
- * in the DOM as `inline-block` from the start, so the heading occupies its
- * final width on first paint — no `display: hidden → inline-block` snap.
- * We then animate only opacity + a tiny Y offset + a soft blur, with the
- * per-character durations overlapping enough to feel like a continuous
- * wave (~3–4 chars in flight at any moment).
+ * Character-by-character typewriter reveal — original aceternity / 21st.dev
+ * approach. Each character starts at `opacity-0 hidden` (display:none, no
+ * layout space). The cursor sits at the trailing edge of the visible text,
+ * so as each character flips to inline-block the cursor walks along.
  *
- * The cursor blinks at the trailing edge of the (final) text. It does not
- * walk character-by-character — sliding it during the fade would either
- * require measuring the DOM each frame or use a width-clip technique that
- * breaks on multi-line wrapping. The stable-layout fade looks like text
- * materialising while the cursor signals "this is the typing line".
+ * Adapted: per-word wrapperClassName (so the mark-box around "spolu" stays
+ * intact), configurable start delay + char stagger, and brand-agnostic
+ * text colour.
  */
 export function TypewriterEffect({
   words,
@@ -33,8 +34,7 @@ export function TypewriterEffect({
   cursorClassName,
   ariaLabel,
   delay = 0,
-  charDuration = 0.45,
-  charStagger = 0.045,
+  charDuration = 0.08,
 }: {
   words: TypewriterWord[];
   className?: string;
@@ -43,65 +43,59 @@ export function TypewriterEffect({
   ariaLabel?: string;
   /** Milliseconds to wait after the section enters viewport before typing */
   delay?: number;
-  /** Seconds for each character's fade-in */
+  /** Stagger between characters (seconds) */
   charDuration?: number;
-  /** Seconds between consecutive character starts */
-  charStagger?: number;
 }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: true, amount: 0.3 });
+  const wordsArray = words.map((w) => ({
+    ...w,
+    chars: w.text.split(""),
+  }));
+
+  const [scope, animate] = useAnimate();
+  const isInView = useInView(scope, { once: true, amount: 0.3 });
+
+  useEffect(() => {
+    if (!isInView) return;
+    const timeout = setTimeout(() => {
+      animate(
+        "span[data-char]",
+        { display: "inline-block", opacity: 1, width: "fit-content" },
+        { duration: 0.3, delay: stagger(charDuration), ease: "easeInOut" },
+      );
+    }, delay);
+    return () => clearTimeout(timeout);
+  }, [isInView, animate, delay, charDuration]);
 
   const fullText = words.map((w) => w.text).join(" ");
-  const baseDelay = delay / 1000;
-
-  // Global char counter so stagger continues across word boundaries
-  let charIndex = -1;
 
   return (
     <div
-      ref={ref}
       role="heading"
       aria-level={2}
       aria-label={ariaLabel ?? fullText}
       className={className}
     >
-      <span aria-hidden="true" className="inline">
-        {words.map((word, wi) => (
+      <motion.span ref={scope} aria-hidden="true" className="inline">
+        {wordsArray.map((word, wi) => (
           <React.Fragment key={`word-${wi}`}>
             {wi > 0 && " "}
             <span
-              className={cn(
-                "inline-block whitespace-nowrap align-baseline",
-                word.wrapperClassName,
-              )}
+              className={cn("inline-block", word.wrapperClassName)}
             >
-              {Array.from(word.text).map((char, ci) => {
-                charIndex += 1;
-                const idx = charIndex;
-                return (
-                  <motion.span
-                    key={ci}
-                    className={cn("inline-block", word.className)}
-                    initial={{ opacity: 0, y: 4, filter: "blur(4px)" }}
-                    animate={
-                      isInView
-                        ? { opacity: 1, y: 0, filter: "blur(0px)" }
-                        : { opacity: 0, y: 4, filter: "blur(4px)" }
-                    }
-                    transition={{
-                      duration: charDuration,
-                      delay: baseDelay + idx * charStagger,
-                      ease: [0.22, 1, 0.36, 1],
-                    }}
-                  >
-                    {char}
-                  </motion.span>
-                );
-              })}
+              {word.chars.map((char, ci) => (
+                <motion.span
+                  key={`char-${wi}-${ci}`}
+                  data-char
+                  initial={{}}
+                  className={cn("opacity-0 hidden", word.className)}
+                >
+                  {char}
+                </motion.span>
+              ))}
             </span>
           </React.Fragment>
         ))}
-      </span>
+      </motion.span>
       <motion.span
         aria-hidden="true"
         initial={{ opacity: 0 }}
