@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { services } from "@/lib/services";
 import { ServiceGraphic } from "@/components/service-graphic";
+import { fillFor } from "@/lib/service-fills";
 import { cn } from "@/lib/cn";
 
 interface Props {
@@ -16,29 +17,11 @@ interface Props {
 
 /**
  * Per-service detail panel for the /sluzby page. Alternating layout
- * (text left vs. visual left depending on index parity) matches the
- * cinematic agency-page rhythm.
- *
- * Animations use `whileInView` triggers (animate once when entering
- * viewport, then stay) instead of scroll-tied scrubbing — this avoids the
- * "ghost / not loaded" look on long mobile pages where many sections sit
- * pre-animation at low opacity for a long time.
+ * (text left vs. visual left depending on index parity). The visual panel
+ * is permanently filled in this service's variant colour (matching the
+ * homepage bento card's hover state), so visiting /sluzby feels like an
+ * "expanded" view of the bento — same vocabulary, more space.
  */
-
-const VISUAL_BG: Record<string, string> = {
-  "meta-ads":
-    "radial-gradient(circle at 80% 20%, rgba(230,48,48,0.18) 0%, transparent 55%), linear-gradient(135deg, #1c1c1c 0%, #0d0d0d 100%)",
-  "google-ads":
-    "radial-gradient(circle at 20% 80%, rgba(230,48,48,0.16) 0%, transparent 55%), linear-gradient(135deg, #0d0d0d 0%, #1f1f1f 100%)",
-  "social-media":
-    "radial-gradient(circle at 50% 90%, rgba(230,48,48,0.15) 0%, transparent 55%), linear-gradient(180deg, #0d0d0d 0%, #220d0d 100%)",
-  weby:
-    "radial-gradient(circle at 90% 50%, rgba(230,48,48,0.18) 0%, transparent 50%), linear-gradient(135deg, #1c0d0d 0%, #0d0d0d 50%, #1f1f1f 100%)",
-  video:
-    "radial-gradient(circle at 75% 25%, rgba(230,48,48,0.15) 0%, transparent 55%), linear-gradient(135deg, #1f1f1f 0%, #0d0d0d 50%, #1a0a0a 100%)",
-  grafika:
-    "radial-gradient(circle at 25% 50%, rgba(230,48,48,0.15) 0%, transparent 50%), linear-gradient(90deg, #0d0d0d 0%, #1f0d0d 60%, #2a0d0d 100%)",
-};
 
 const VIEWPORT_TRIGGER = { once: true, amount: 0.2 } as const;
 const EASE = [0.22, 1, 0.36, 1] as const;
@@ -48,7 +31,9 @@ export function ServiceSection({ slug, index }: Props) {
   if (!service) return null;
 
   const Icon = service.icon;
+  const fill = fillFor(slug);
   const isOdd = index % 2 === 1;
+  const isLightFill = fill.bg === "#fafaf7";
 
   return (
     <section
@@ -57,48 +42,70 @@ export function ServiceSection({ slug, index }: Props) {
     >
       <div className="mx-auto max-w-(--container-default) px-6">
         <div className="grid md:grid-cols-2 gap-8 md:gap-10 lg:gap-16 items-center">
-          {/* Visual panel */}
+          {/* Visual panel — permanently filled in this service's colour */}
           <motion.div
             initial={{ opacity: 0, scale: 0.96, y: 24 }}
             whileInView={{ opacity: 1, scale: 1, y: 0 }}
             viewport={VIEWPORT_TRIGGER}
             transition={{ duration: 0.7, ease: EASE }}
+            style={
+              {
+                background: fill.bg,
+                color: fill.text,
+                "--fill-num": fill.num,
+                "--fill-accent": fill.accent,
+                "--fill-divider": fill.divider,
+              } as React.CSSProperties
+            }
             className={cn(
-              "relative aspect-[5/4] md:aspect-[4/3] overflow-hidden border border-divider w-full",
+              "relative aspect-[5/4] md:aspect-[4/3] overflow-hidden w-full",
+              "border",
+              // Cream cards need a visible border, dark/red cards don't.
+              isLightFill ? "border-[var(--fill-divider)]" : "border-transparent",
               isOdd && "md:order-2",
             )}
           >
-            {/* Layered background (red glow + dark gradient) */}
+            {/* Decorative graphic — turns subtle / harmless on light fill */}
             <div
               aria-hidden="true"
-              className="absolute inset-0"
-              style={{ background: VISUAL_BG[service.slug] }}
-            />
+              className={cn(
+                isLightFill ? "opacity-25 [color-scheme:light]" : "",
+              )}
+            >
+              <ServiceGraphic slug={service.slug} />
+            </div>
 
-            {/* Decorative graphic (dot grid + per-service illustration) */}
-            <ServiceGraphic slug={service.slug} />
-
-            {/* Larger faint icon as ambient watermark (behind the graphic) */}
+            {/* Large faint icon watermark */}
             <Icon
               aria-hidden="true"
               strokeWidth={1}
-              className="absolute -bottom-8 -left-8 w-[50%] h-[50%] text-white/[0.05] z-[1]"
+              className={cn(
+                "absolute -bottom-8 -left-8 w-[50%] h-[50%] z-[1]",
+                isLightFill ? "text-black/[0.05]" : "text-white/[0.07]",
+              )}
             />
 
             {/* Service number, top-left */}
             <div className="absolute top-5 left-5 md:top-8 md:left-8 z-10">
-              <span className="font-display font-black text-3xl md:text-4xl text-white/45 leading-none">
+              <span
+                className="font-display font-black text-3xl md:text-4xl leading-none"
+                style={{ color: fill.num }}
+              >
                 {service.num}
               </span>
-              <span className="block text-[10px] tracking-[3px] text-accent uppercase font-bold mt-2">
+              <span
+                className="block text-[10px] tracking-[3px] uppercase font-bold mt-2"
+                style={{ color: fill.accent }}
+              >
                 Služba
               </span>
             </div>
 
-            {/* Decorative red corner accent, bottom-right */}
+            {/* Decorative corner accent (matches eyebrow colour) */}
             <div
               aria-hidden="true"
-              className="absolute bottom-5 right-5 md:bottom-8 md:right-8 w-12 h-[2px] bg-accent z-10"
+              className="absolute bottom-5 right-5 md:bottom-8 md:right-8 w-12 h-[2px] z-10"
+              style={{ background: fill.accent }}
             />
           </motion.div>
 

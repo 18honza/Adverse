@@ -36,11 +36,60 @@ html {
 
 body {
   font-family: var(--font-sans);
-  color: var(--color-text);
-  background: var(--color-bg);
+  color: var(--theme-fg, var(--color-text));
+  background: var(--theme-bg, var(--color-bg));
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   overflow-x: clip;
+  /* Scroll-driven theme transitions — colour transitions only, no layout */
+  transition: background-color 480ms cubic-bezier(0.22, 1, 0.36, 1),
+              color 480ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ============ Scroll themes ============
+   Sections expose a data-theme via the ScrollTheme observer; the active
+   section's theme name lands on <body data-theme="…"> and the rest of
+   the page recolours via these variables. Components consume the
+   --theme-* tokens (with --color-* fallbacks) so untouched components
+   keep working when no theme is active. */
+
+body[data-theme="light"] {
+  --theme-bg: #ffffff;
+  --theme-fg: #111111;
+  --theme-muted: #666666;
+  --theme-faint: #999999;
+  --theme-divider: #ececec;
+  --theme-accent: #e63030;
+}
+body[data-theme="cream"] {
+  --theme-bg: #fafaf7;
+  --theme-fg: #111111;
+  --theme-muted: #5a5a55;
+  --theme-faint: #8c8c85;
+  --theme-divider: #e7e5dc;
+  --theme-accent: #e63030;
+}
+body[data-theme="dark"] {
+  --theme-bg: #0d0d0d;
+  --theme-fg: #ffffff;
+  --theme-muted: rgba(255, 255, 255, 0.7);
+  --theme-faint: rgba(255, 255, 255, 0.45);
+  --theme-divider: rgba(255, 255, 255, 0.12);
+  --theme-accent: #ff5a4a;
+}
+body[data-theme="red"] {
+  --theme-bg: #e63030;
+  --theme-fg: #ffffff;
+  --theme-muted: rgba(255, 255, 255, 0.78);
+  --theme-faint: rgba(255, 255, 255, 0.5);
+  --theme-divider: rgba(255, 255, 255, 0.2);
+  --theme-accent: #ffffff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body {
+    transition: none;
+  }
 }
 
 h1, h2, h3, h4 {

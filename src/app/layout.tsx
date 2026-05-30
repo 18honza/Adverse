@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import { site } from "@/lib/site";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
+import { ScrollTheme } from "@/components/scroll-theme";
 import "./globals.css";
 
 const inter = Inter({
@@ -41,7 +42,8 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="cs" className={`${inter.variable} antialiased`}>
-      <body className="min-h-screen flex flex-col">
+      <body data-theme="light" className="min-h-screen flex flex-col">
+        <ScrollTheme defaultTheme="light" />
         <Header />
         <main className="flex-1">{children}</main>
         <Footer />
