@@ -5,13 +5,18 @@ import { Eyebrow } from "@/components/eyebrow";
 import { StatCounter } from "@/components/stat-counter";
 
 /**
- * Hero in the aidigital.com layout, executed in Adverse brand. A single
- * organic squiggle weaves around (and through) the headline: most of it
- * sits behind the type, a couple of front-loops sit in front, creating
- * the woven illusion. Continuous slow drift animation. Headline is solid
- * black; the squiggle carries the brand red on a cream surface.
+ * Hero in the aidigital.com layout, executed in Adverse brand.
  *
- * No CTAs in this hero — primary action lives in the nav ("KONTAKT").
+ * Trick: ONE squiggle path rendered in two SVG layers stacked around the
+ * heading. The back layer (z-0) is unmasked; the front layer (z-20) is
+ * masked to four vertical reveal bands. Both layers run the SAME stroke
+ * animation in sync — pathLength + pathOffset keyframes make a "snake"
+ * grow from the start, travel across the heading, and disappear off the
+ * end, then loop. The mask on the front layer means the snake reads as
+ * IN FRONT of letters inside the reveal bands and BEHIND letters in
+ * between — that's the weave.
+ *
+ * Reduced-motion: full squiggle painted instantly, no snake motion.
  */
 export function HeroDisplay() {
   const reduceMotion = useReducedMotion();
@@ -27,12 +32,11 @@ export function HeroDisplay() {
           Digitální marketing
         </Eyebrow>
 
-        {/* Headline area: squiggle BACK layer + type + squiggle FRONT-curls layer */}
+        {/* Headline area: back layer + heading + front (masked) layer */}
         <div className="relative flex items-center justify-center min-h-[clamp(11rem,28vw,22rem)]">
-          {/* Background squiggle — behind the text */}
-          <SquiggleBack reduceMotion={Boolean(reduceMotion)} />
+          {/* BACK squiggle — sits behind the type */}
+          <Squiggle masked={false} reduceMotion={Boolean(reduceMotion)} className="z-0" />
 
-          {/* Headline */}
           <h1
             className={[
               "relative z-10",
@@ -40,7 +44,6 @@ export function HeroDisplay() {
               "text-[clamp(2.75rem,11vw,8.5rem)]",
               "leading-[0.95] tracking-[-0.02em]",
               "text-text",
-              "whitespace-nowrap sm:whitespace-normal",
               "max-w-[16ch]",
               "mx-auto",
             ].join(" ")}
@@ -50,8 +53,8 @@ export function HeroDisplay() {
             které vidíte.
           </h1>
 
-          {/* Foreground squiggle curls — sit IN FRONT of the text in spots */}
-          <SquiggleFront reduceMotion={Boolean(reduceMotion)} />
+          {/* FRONT squiggle — same path + animation, masked to alternating bands */}
+          <Squiggle masked reduceMotion={Boolean(reduceMotion)} className="z-20" />
         </div>
 
         {/* Subhead with bolded key phrases */}
@@ -116,118 +119,98 @@ function Stat({ value, label }: { value: React.ReactNode; label: string }) {
 }
 
 /* ============================================================
-   Squiggle — drawn as two layered SVGs sharing visual rhythm.
-   BACK layer carries the bulk of the path and sits behind text.
-   FRONT layer is a few short arc segments positioned to peek
-   over the letters, creating the woven look from a distance.
-   The whole thing drifts slowly on the X axis.
+   Squiggle — one path, rendered twice in synchronised layers.
    ============================================================ */
 
 const ACCENT = "#e63030";
 
-function SquiggleBack({ reduceMotion }: { reduceMotion: boolean }) {
-  // Long, flowing path with several loops across the hero width.
-  // Designed to live in a wide viewBox so it scales crisply at any size.
-  const d =
-    "M -120 220 " +
-    "C 60 80, 180 380, 360 180 " +
-    "S 540 -10, 700 220 " +
-    "S 880 420, 1040 200 " +
-    "S 1220 -30, 1400 220 " +
-    "S 1620 400, 1820 180";
+// Single shared path. Five flowing humps span beyond the viewBox so the
+// stroke enters from the left and exits to the right cleanly.
+const PATH_D =
+  "M -120 220 " +
+  "C 80 60, 240 60, 420 220 " +
+  "S 700 380, 880 220 " +
+  "S 1160 60, 1340 220 " +
+  "S 1620 380, 1800 220 " +
+  "S 2080 60, 2200 220";
 
-  return (
-    <motion.svg
-      aria-hidden="true"
-      viewBox="0 0 1700 440"
-      preserveAspectRatio="xMidYMid meet"
-      className="absolute inset-0 w-[125%] sm:w-[115%] md:w-[110%] h-[120%] -left-[12%] sm:-left-[7%] md:-left-[5%] -top-[10%] z-0 pointer-events-none"
-      initial={reduceMotion ? false : { x: -40 }}
-      animate={reduceMotion ? undefined : { x: [40, -40, 40] }}
-      transition={
-        reduceMotion
-          ? undefined
-          : {
-              duration: 18,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }
-      }
-    >
-      <motion.path
-        d={d}
-        fill="none"
-        stroke={ACCENT}
-        strokeWidth={48}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        initial={reduceMotion ? { pathLength: 1 } : { pathLength: 0 }}
-        animate={{ pathLength: 1 }}
-        transition={{
-          duration: reduceMotion ? 0 : 1.8,
-          ease: [0.22, 1, 0.36, 1],
-          delay: 0.15,
-        }}
-      />
-    </motion.svg>
-  );
-}
+// Cycle: 1.4s "appear from left" → 3.4s "travel across" → 1.6s "exit on
+// right" → 0.4s rest → repeat. Total = 6.8s.
+const ENTRY_END = 0.21; // ≈ 1.4 / 6.8
+const TRAVEL_END = 0.71; // ≈ (1.4 + 3.4) / 6.8
+const EXIT_END = 0.94; // ≈ (1.4 + 3.4 + 1.6) / 6.8
 
-function SquiggleFront({ reduceMotion }: { reduceMotion: boolean }) {
-  // Two short arc fragments that sit IN FRONT of the text. They share the
-  // visual style of the back layer so they read as one woven path even
-  // though they're rendered above. Positioned at letter-spaced spots that
-  // match the back path's curl peaks.
+const SNAKE_LENGTH = 0.4;
+
+function Squiggle({
+  masked,
+  className,
+  reduceMotion,
+}: {
+  masked: boolean;
+  className?: string;
+  reduceMotion: boolean;
+}) {
+  // Stable IDs — picked at module scope below so back + front don't collide
   return (
-    <motion.svg
+    <svg
       aria-hidden="true"
-      viewBox="0 0 1700 440"
+      viewBox="0 0 2080 440"
       preserveAspectRatio="xMidYMid meet"
-      className="absolute inset-0 w-[125%] sm:w-[115%] md:w-[110%] h-[120%] -left-[12%] sm:-left-[7%] md:-left-[5%] -top-[10%] z-20 pointer-events-none"
-      initial={reduceMotion ? false : { x: -40 }}
-      animate={reduceMotion ? undefined : { x: [40, -40, 40] }}
-      transition={
-        reduceMotion
-          ? undefined
-          : {
-              duration: 18,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }
-      }
+      className={[
+        "absolute inset-0",
+        "w-[128%] sm:w-[118%] md:w-[112%]",
+        "h-[120%] -left-[14%] sm:-left-[9%] md:-left-[6%] -top-[10%]",
+        "pointer-events-none",
+        className ?? "",
+      ].join(" ")}
     >
-      {/* Front curl 1 — over the left third of the headline */}
+      {masked && (
+        <defs>
+          {/* Four reveal bands across the SVG width — the bands where the
+              squiggle reads as "in front" of the letters. Black = hide,
+              white = reveal. */}
+          <mask id="weave-mask">
+            <rect width="100%" height="100%" fill="black" />
+            <rect x="9%" width="10%" height="100%" fill="white" />
+            <rect x="32%" width="10%" height="100%" fill="white" />
+            <rect x="55%" width="10%" height="100%" fill="white" />
+            <rect x="78%" width="10%" height="100%" fill="white" />
+          </mask>
+        </defs>
+      )}
       <motion.path
-        d="M 240 80 C 320 30, 420 110, 360 200 S 250 240, 320 290"
+        d={PATH_D}
         fill="none"
         stroke={ACCENT}
-        strokeWidth={42}
+        strokeWidth={46}
         strokeLinecap="round"
         strokeLinejoin="round"
-        initial={reduceMotion ? { pathLength: 1 } : { pathLength: 0 }}
-        animate={{ pathLength: 1 }}
-        transition={{
-          duration: reduceMotion ? 0 : 1.6,
-          ease: [0.22, 1, 0.36, 1],
-          delay: 0.55,
-        }}
+        mask={masked ? "url(#weave-mask)" : undefined}
+        initial={
+          reduceMotion
+            ? { pathLength: 1, pathOffset: 0 }
+            : { pathLength: 0, pathOffset: 0 }
+        }
+        animate={
+          reduceMotion
+            ? { pathLength: 1, pathOffset: 0 }
+            : {
+                pathLength: [0, SNAKE_LENGTH, SNAKE_LENGTH, SNAKE_LENGTH, 0],
+                pathOffset: [0, 0, 1 - SNAKE_LENGTH, 1, 1],
+              }
+        }
+        transition={
+          reduceMotion
+            ? undefined
+            : {
+                duration: 6.8,
+                ease: "linear",
+                repeat: Infinity,
+                times: [0, ENTRY_END, TRAVEL_END, EXIT_END, 1],
+              }
+        }
       />
-      {/* Front curl 2 — over the right third */}
-      <motion.path
-        d="M 1140 110 C 1210 60, 1300 150, 1240 240 S 1110 290, 1180 340"
-        fill="none"
-        stroke={ACCENT}
-        strokeWidth={42}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        initial={reduceMotion ? { pathLength: 1 } : { pathLength: 0 }}
-        animate={{ pathLength: 1 }}
-        transition={{
-          duration: reduceMotion ? 0 : 1.6,
-          ease: [0.22, 1, 0.36, 1],
-          delay: 0.75,
-        }}
-      />
-    </motion.svg>
+    </svg>
   );
 }
