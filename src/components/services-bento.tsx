@@ -4,7 +4,6 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import { services, type Service } from "@/lib/services";
-import { ServiceGraphic } from "@/components/service-graphic";
 import { fillFor } from "@/lib/service-fills";
 import { cn } from "@/lib/cn";
 
@@ -12,52 +11,21 @@ interface BentoCard {
   slug: string;
   /** Tailwind grid placement classes for md+ breakpoint */
   span: string;
-  /** Default dark surface (visible until hover); same layered gradient
-   *  + red glow we've been using on bento cards. */
-  background: string;
-  /** Hero card gets a larger title and one-line description */
+  /** Hero card gets a larger title and a one-line description */
   hero?: boolean;
 }
 
 const layout: BentoCard[] = [
-  {
-    slug: "meta-ads",
-    span: "md:col-span-3 md:row-span-1",
-    background:
-      "radial-gradient(circle at 85% 20%, rgba(230,48,48,0.18) 0%, transparent 55%), linear-gradient(135deg, #1f1f1f 0%, #0d0d0d 100%)",
-  },
-  {
-    slug: "weby",
-    span: "md:col-span-9 md:row-span-1",
-    background:
-      "radial-gradient(circle at 80% 50%, rgba(230,48,48,0.18) 0%, transparent 50%), linear-gradient(120deg, #1a1a1a 0%, #0d0d0d 50%, #1f1f1f 100%)",
-    hero: true,
-  },
-  {
-    slug: "social-media",
-    span: "md:col-span-3 md:row-span-2",
-    background:
-      "radial-gradient(circle at 50% 90%, rgba(230,48,48,0.15) 0%, transparent 50%), linear-gradient(180deg, #1f1f1f 0%, #0d0d0d 100%)",
-  },
-  {
-    slug: "google-ads",
-    span: "md:col-span-5 md:row-span-1",
-    background:
-      "radial-gradient(circle at 15% 80%, rgba(230,48,48,0.16) 0%, transparent 55%), linear-gradient(135deg, #0d0d0d 0%, #1f1f1f 100%)",
-  },
-  {
-    slug: "video",
-    span: "md:col-span-4 md:row-span-1",
-    background:
-      "radial-gradient(circle at 75% 25%, rgba(230,48,48,0.16) 0%, transparent 55%), linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%)",
-  },
-  {
-    slug: "grafika",
-    span: "md:col-span-9 md:row-span-1",
-    background:
-      "radial-gradient(circle at 25% 50%, rgba(230,48,48,0.15) 0%, transparent 50%), linear-gradient(90deg, #1a1a1a 0%, #1f0d0d 50%, #0d0d0d 100%)",
-  },
+  { slug: "meta-ads", span: "md:col-span-3 md:row-span-1" },
+  { slug: "weby", span: "md:col-span-9 md:row-span-1", hero: true },
+  { slug: "social-media", span: "md:col-span-3 md:row-span-2" },
+  { slug: "google-ads", span: "md:col-span-5 md:row-span-1" },
+  { slug: "video", span: "md:col-span-4 md:row-span-1" },
+  { slug: "grafika", span: "md:col-span-9 md:row-span-1" },
 ];
+
+const VIEWPORT_TRIGGER = { once: true, amount: 0.2 } as const;
+const EASE = [0.22, 1, 0.36, 1] as const;
 
 export function ServicesBento() {
   return (
@@ -100,9 +68,6 @@ export function ServicesBento() {
   );
 }
 
-const VIEWPORT_TRIGGER = { once: true, amount: 0.2 } as const;
-const EASE = [0.22, 1, 0.36, 1] as const;
-
 function BentoCardItem({
   card,
   service,
@@ -113,116 +78,142 @@ function BentoCardItem({
   index: number;
 }) {
   const fill = fillFor(card.slug);
+  const Icon = service.icon;
 
   return (
     <motion.article
-      // Card is visible from first paint (opacity stays 1); the entry just
-      // nudges scale + y when it enters viewport. This stays robust even if
-      // the viewport-trigger fires after the user has already scrolled
-      // past — the card is readable either way.
-      initial={{ scale: 0.96, y: 16 }}
-      whileInView={{ scale: 1, y: 0 }}
+      initial={{ opacity: 0, scale: 0.96, y: 16 }}
+      whileInView={{ opacity: 1, scale: 1, y: 0 }}
       viewport={VIEWPORT_TRIGGER}
       transition={{
         duration: 0.5,
         ease: EASE,
         delay: Math.min(index * 0.06, 0.3),
       }}
+      // CSS variables hold the per-card hover palette so `group-hover`
+      // utilities below can read them. Default colours (white text +
+      // gray background) live in the Tailwind classes themselves.
       style={
         {
-          background: card.background,
-          "--fill-bg": fill.bg,
-          "--fill-text": fill.text,
-          "--fill-num": fill.num,
-          "--fill-accent": fill.accent,
-          "--fill-arrow-bg": fill.arrowBg,
-          "--fill-arrow-border": fill.arrowBorder,
-          "--fill-arrow-text": fill.arrowText,
-        } as unknown as React.CSSProperties
+          "--c-fill": fill.bg,
+          "--c-fg": fill.fg,
+          "--c-muted": fill.fgMuted,
+          "--c-arrow-bg": fill.arrowBg,
+          "--c-arrow-text": fill.arrowText,
+        } as React.CSSProperties
       }
       className={cn(
         "relative overflow-hidden",
-        "border border-white/10",
         "min-h-[220px] md:min-h-0",
-        "flex flex-col justify-end group",
-        // Hover lifts the card's border a hair; the colour fill does the rest.
-        "transition-colors duration-300 hover:border-white/30",
+        "group cursor-default",
+        // Default: warm dark-gray. On hover the background swaps to
+        // var(--c-fill) over 300ms — smooth fade between the two states.
+        "bg-[#262626] hover:bg-[color:var(--c-fill)]",
+        "transition-colors duration-300",
         card.span,
       )}
     >
-      {/* Default surface — ambient decoration (dot grid + ServiceGraphic).
-          Fades out on hover so the fill colour reads clean. */}
-      <div
-        aria-hidden="true"
-        className="absolute inset-0 transition-opacity duration-300 group-hover:opacity-0"
-      >
-        <ServiceGraphic slug={service.slug} />
-        <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/85 via-black/40 to-transparent" />
-      </div>
+      {/* Sonar arcs in the top-right corner — hidden by default,
+          revealed on hover in the variant's foreground colour. */}
+      <HoverArcs />
 
-      {/* Fill overlay — variant colour, fades in on hover */}
-      <div
-        aria-hidden="true"
-        className="absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-        style={{ background: "var(--fill-bg)" }}
-      />
+      {/* Content */}
+      <div className="relative z-10 h-full flex flex-col p-6 md:p-7">
+        {/* Top row: icon + number on left, arrow on right */}
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <Icon
+              aria-hidden="true"
+              strokeWidth={1.75}
+              className={cn(
+                "w-7 h-7 transition-colors duration-300",
+                "text-white group-hover:text-[color:var(--c-fg)]",
+              )}
+            />
+            <span
+              className={cn(
+                "text-[10px] font-bold uppercase tracking-[3px]",
+                "transition-colors duration-300",
+                "text-white/65 group-hover:text-[color:var(--c-muted)]",
+              )}
+            >
+              {service.num}
+            </span>
+          </div>
 
-      {/* Top-right arrow link */}
-      <Link
-        href={`/sluzby#${service.slug}`}
-        aria-label={`Více o službě ${service.title}`}
-        className={cn(
-          "absolute top-4 right-4 md:top-5 md:right-5 z-10",
-          "w-10 h-10 rounded-full",
-          "flex items-center justify-center",
-          "border transition-colors duration-300",
-          // Default: glass on dark
-          "bg-white/10 backdrop-blur-md border-white/20 text-white",
-          // Hover: variant
-          "group-hover:bg-[color:var(--fill-arrow-bg)]",
-          "group-hover:border-[color:var(--fill-arrow-border)]",
-          "group-hover:text-[color:var(--fill-arrow-text)]",
-          "group-hover:backdrop-blur-0",
-        )}
-      >
-        <ArrowUpRight className="w-4 h-4" />
-      </Link>
-
-      {/* Bottom content */}
-      <div className="relative z-10 p-6 md:p-8">
-        <span
-          className={cn(
-            "text-xs font-bold uppercase tracking-[2px]",
-            "text-accent transition-colors duration-300",
-            "group-hover:text-[color:var(--fill-num)]",
-          )}
-        >
-          {service.num}
-        </span>
-        <h3
-          className={cn(
-            "mt-2 leading-[1.05] tracking-tight",
-            "text-white transition-colors duration-300",
-            "group-hover:text-[color:var(--fill-text)]",
-            card.hero
-              ? "text-3xl md:text-4xl lg:text-5xl"
-              : "text-2xl md:text-3xl",
-          )}
-        >
-          {service.title}
-        </h3>
-        {card.hero && (
-          <p
+          <Link
+            href={`/sluzby#${service.slug}`}
+            aria-label={`Více o službě ${service.title}`}
             className={cn(
-              "mt-3 max-w-md leading-relaxed text-sm md:text-base",
-              "text-white/70 transition-colors duration-300",
-              "group-hover:text-[color:var(--fill-text)]/85",
+              "shrink-0 w-9 h-9 rounded-full",
+              "flex items-center justify-center",
+              "border transition-all duration-300",
+              "bg-transparent border-white/25 text-white",
+              "group-hover:bg-[color:var(--c-arrow-bg)]",
+              "group-hover:border-[color:var(--c-arrow-bg)]",
+              "group-hover:text-[color:var(--c-arrow-text)]",
             )}
           >
-            {service.short}
-          </p>
-        )}
+            <ArrowUpRight className="w-4 h-4" />
+          </Link>
+        </div>
+
+        {/* Bottom row: title (+ optional hero one-liner) */}
+        <div className="mt-auto">
+          <h3
+            className={cn(
+              "font-display font-black uppercase",
+              "leading-[1.05] tracking-tight",
+              "transition-colors duration-300",
+              "text-white group-hover:text-[color:var(--c-fg)]",
+              card.hero
+                ? "text-3xl md:text-4xl lg:text-5xl"
+                : "text-2xl md:text-3xl",
+            )}
+          >
+            {service.title}
+          </h3>
+          {card.hero && (
+            <p
+              className={cn(
+                "mt-3 max-w-md leading-relaxed text-sm md:text-base",
+                "transition-colors duration-300",
+                "text-white/70 group-hover:text-[color:var(--c-muted)]",
+              )}
+            >
+              {service.short}
+            </p>
+          )}
+        </div>
       </div>
     </motion.article>
+  );
+}
+
+/**
+ * Four concentric quarter-circle arcs anchored at the top-right corner
+ * of the card — default invisible, fade in on hover. Colour follows the
+ * card's --c-fg via currentColor so it always contrasts the variant bg.
+ */
+function HoverArcs() {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 220 220"
+      className={cn(
+        "absolute top-0 right-0 w-36 h-36 md:w-44 md:h-44",
+        "pointer-events-none",
+        "opacity-0 group-hover:opacity-100",
+        "transition-opacity duration-500",
+        "text-[color:var(--c-fg)]",
+      )}
+    >
+      <g fill="none" stroke="currentColor" strokeWidth="2">
+        <circle cx="220" cy="0" r="70" />
+        <circle cx="220" cy="0" r="115" />
+        <circle cx="220" cy="0" r="160" />
+        <circle cx="220" cy="0" r="205" />
+      </g>
+    </svg>
   );
 }

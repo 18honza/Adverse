@@ -4,7 +4,6 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { services } from "@/lib/services";
-import { ServiceGraphic } from "@/components/service-graphic";
 import { fillFor } from "@/lib/service-fills";
 import { cn } from "@/lib/cn";
 
@@ -33,7 +32,7 @@ export function ServiceSection({ slug, index }: Props) {
   const Icon = service.icon;
   const fill = fillFor(slug);
   const isOdd = index % 2 === 1;
-  const isLightFill = fill.bg === "#fafaf7";
+  const isLightFill = fill.bg === "#ffffff";
 
   return (
     <section
@@ -42,71 +41,72 @@ export function ServiceSection({ slug, index }: Props) {
     >
       <div className="mx-auto max-w-(--container-default) px-6">
         <div className="grid md:grid-cols-2 gap-8 md:gap-10 lg:gap-16 items-center">
-          {/* Visual panel — permanently filled in this service's colour */}
+          {/* Visual panel — permanently filled in the variant colour,
+              same vocabulary as the bento card's hover state (sonar arcs
+              in the top-right corner). */}
           <motion.div
             initial={{ opacity: 0, scale: 0.96, y: 24 }}
             whileInView={{ opacity: 1, scale: 1, y: 0 }}
             viewport={VIEWPORT_TRIGGER}
             transition={{ duration: 0.7, ease: EASE }}
-            style={
-              {
-                background: fill.bg,
-                color: fill.text,
-                "--fill-num": fill.num,
-                "--fill-accent": fill.accent,
-                "--fill-divider": fill.divider,
-              } as React.CSSProperties
-            }
+            style={{ background: fill.bg, color: fill.fg }}
             className={cn(
               "relative aspect-[5/4] md:aspect-[4/3] overflow-hidden w-full",
               "border",
-              // Cream cards need a visible border, dark/red cards don't.
-              isLightFill ? "border-[var(--fill-divider)]" : "border-transparent",
+              // White cards need a visible border; dark/red cards don't.
+              isLightFill ? "border-divider" : "border-transparent",
               isOdd && "md:order-2",
             )}
           >
-            {/* Decorative graphic — turns subtle / harmless on light fill */}
-            <div
+            {/* Concentric arcs in the top-right corner — matches the
+                bento hover state visually. */}
+            <svg
               aria-hidden="true"
-              className={cn(
-                isLightFill ? "opacity-25 [color-scheme:light]" : "",
-              )}
+              viewBox="0 0 260 260"
+              className="absolute top-0 right-0 w-2/5 h-2/5"
+              style={{ color: fill.fg }}
             >
-              <ServiceGraphic slug={service.slug} />
-            </div>
+              <g fill="none" stroke="currentColor" strokeWidth="2" opacity="0.9">
+                <circle cx="260" cy="0" r="90" />
+                <circle cx="260" cy="0" r="140" />
+                <circle cx="260" cy="0" r="195" />
+                <circle cx="260" cy="0" r="250" />
+              </g>
+            </svg>
 
-            {/* Large faint icon watermark */}
+            {/* Large faint icon watermark, bottom-left */}
             <Icon
               aria-hidden="true"
-              strokeWidth={1}
-              className={cn(
-                "absolute -bottom-8 -left-8 w-[50%] h-[50%] z-[1]",
-                isLightFill ? "text-black/[0.05]" : "text-white/[0.07]",
-              )}
+              strokeWidth={1.25}
+              className="absolute -bottom-6 -left-6 w-[45%] h-[45%]"
+              style={{ color: fill.fg, opacity: isLightFill ? 0.08 : 0.14 }}
             />
 
-            {/* Service number, top-left */}
+            {/* Service number + eyebrow, top-left */}
             <div className="absolute top-5 left-5 md:top-8 md:left-8 z-10">
               <span
                 className="font-display font-black text-3xl md:text-4xl leading-none"
-                style={{ color: fill.num }}
+                style={{ color: fill.fg }}
               >
                 {service.num}
               </span>
               <span
                 className="block text-[10px] tracking-[3px] uppercase font-bold mt-2"
-                style={{ color: fill.accent }}
+                style={{ color: fill.fgMuted }}
               >
                 Služba
               </span>
             </div>
 
-            {/* Decorative corner accent (matches eyebrow colour) */}
-            <div
-              aria-hidden="true"
-              className="absolute bottom-5 right-5 md:bottom-8 md:right-8 w-12 h-[2px] z-10"
-              style={{ background: fill.accent }}
-            />
+            {/* Title at bottom-left, matching the bento card layout */}
+            <div className="absolute bottom-5 left-5 md:bottom-8 md:left-8 z-10 max-w-[80%]">
+              <h3
+                className="font-display font-black uppercase text-xl md:text-2xl lg:text-3xl leading-[1.05] tracking-tight"
+                style={{ color: fill.fg }}
+              >
+                {service.title}
+              </h3>
+            </div>
           </motion.div>
 
           {/* Body */}
