@@ -23,7 +23,7 @@ const universals = [
     icon: LineChart,
     title: "Týdenní reporty",
     description:
-      "Každý týden vidíte přesně co se děje, kde rosteme a kde brzdíme. Žádné měsíční tichá období bez informací.",
+      "Každý týden přesně vidíte, co se děje, kde rosteme a kde naopak brzdíme. Žádné měsíční „ticho po pěšině“ a čekání na výsledky.",
     accent: "linear-gradient(135deg, #1c1c1c 0%, #0d0d0d 100%)",
     glow: "radial-gradient(circle at 80% 30%, rgba(230,48,48,0.18) 0%, transparent 55%)",
   },
@@ -31,7 +31,7 @@ const universals = [
     icon: MessagesSquare,
     title: "Přímá komunikace",
     description:
-      "Voláme si a píšeme s vámi přímo my dva. Žádný account manager, žádné prostředníky, žádné e-mailové ping-pongy.",
+      "Voláte si a píšete přímo s námi dvěma. Žádný schovaný account manager, žádní zprostředkovatelé, žádný e-mailový ping-pong.",
     accent: "linear-gradient(135deg, #1f1f1f 0%, #0d0d0d 100%)",
     glow: "radial-gradient(circle at 30% 70%, rgba(230,48,48,0.16) 0%, transparent 55%)",
   },
@@ -39,7 +39,7 @@ const universals = [
     icon: Eye,
     title: "Otevřená data",
     description:
-      "Sdílíme s vámi všechna čísla, do kterých vidíme. Co se dá změřit, to se dá zlepšit — a vy to vidíte se mnou.",
+      "Sdílíme s vámi všechna čísla, do kterých vidíme my. Co se dá změřit, to se dá zlepšit — a vy do toho vidíte s námi.",
     accent: "linear-gradient(135deg, #0d0d0d 0%, #1f1f1f 100%)",
     glow: "radial-gradient(circle at 70% 50%, rgba(230,48,48,0.18) 0%, transparent 55%)",
   },
@@ -50,8 +50,8 @@ export default function SluzbyPage() {
     <>
       <PageHero
         eyebrow="Služby"
-        title="Co pro vás děláme"
-        description="Šest hlavních oblastí, ve kterých jsme doma. Pracujeme s realitními a cestovními agenturami v ČR — každý klient dostane osobní servis."
+        title="Co pro vás odmakáme"
+        description="Šest hlavních oblastí, ve kterých jsme kovaní. Pracujeme primárně s realitními kancelářemi a cestovními agenturami v ČR. Žádná univerzální řešení — každý náš klient dostává stoprocentní osobní servis a strategie, které reálně prodávají."
       />
 
       {/* Per-service detail sections (alternating layout) */}
@@ -65,11 +65,11 @@ export default function SluzbyPage() {
           <header className="text-center mb-10 md:mb-14">
             <Eyebrow>Ke každé službě</Eyebrow>
             <h2 className="text-2xl md:text-3xl lg:text-4xl">
-              Co dostanete vždycky
+              Co u nás dostanete vždycky
             </h2>
             <p className="text-text-muted max-w-xl mx-auto mt-4">
-              Tři věci, které platí napříč všemi službami — protože tak děláme
-              marketing my.
+              Tři věci, přes které u nás nejede vlak. Žádné kompromisy, jen
+              čistá práce.
             </p>
           </header>
 
@@ -101,8 +101,8 @@ export default function SluzbyPage() {
       </section>
 
       <FinalCta
-        title="Která služba je pro vás?"
-        description="Nemusíte vědět dopředu. Domluvíme se, posoudíme a doporučíme."
+        title="Která služba je pro vás ta pravá?"
+        description="Nemusíte to vědět dopředu. Od toho jsme tu my. Sedneme si, poslechneme si vaše cíle a navrhneme postup, který bude dávat smysl vašemu rozpočtu."
       />
     </>
   );

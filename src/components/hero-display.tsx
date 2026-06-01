@@ -59,16 +59,16 @@ export function HeroDisplay() {
 
         {/* Subhead with bolded key phrases */}
         <p className="mt-10 sm:mt-12 text-lg sm:text-xl md:text-2xl text-text max-w-2xl mx-auto leading-snug font-medium">
-          <strong className="font-extrabold">Měřitelný marketing</strong> pro
-          realitní a cestovní agentury, postavený na{" "}
-          <strong className="font-extrabold">datech</strong> a{" "}
-          <strong className="font-extrabold">osobním přístupu</strong>.
+          <strong className="font-extrabold">Přivádíme klienty</strong>{" "}
+          realitkám a cestovkám.{" "}
+          <strong className="font-extrabold">Měřitelně.</strong>
         </p>
 
         {/* Short body line below */}
         <p className="mt-5 text-sm sm:text-base text-[var(--theme-muted,#666)] max-w-xl mx-auto leading-relaxed">
-          Vedeme Meta a Google kampaně, sociální sítě, weby a produkci pro
-          klienty, kteří chtějí vidět, kam jejich rozpočet jde a co vrací.
+          Neděláme marketing pro všechny. Specializujeme se na výkonnostní
+          kampaně, weby a sociální sítě pro realitní trh a cestovní agentury.
+          Žádný korporátní šum, jen výsledky, které uvidíte v obratu.
         </p>
 
         {/* Stats row */}
@@ -81,7 +81,7 @@ export function HeroDisplay() {
                 className="font-display text-2xl sm:text-3xl md:text-4xl font-black"
               />
             }
-            label="Spokojených klientů"
+            label="Růstových projektů a klientů"
           />
           <Stat
             value={
@@ -89,7 +89,7 @@ export function HeroDisplay() {
                 META + GGL
               </span>
             }
-            label="Certifikované reklamy"
+            label="Certifikovaní partneři"
           />
           <Stat
             value={
@@ -99,7 +99,7 @@ export function HeroDisplay() {
                 className="font-display text-2xl sm:text-3xl md:text-4xl font-black"
               />
             }
-            label="Osobní přístup"
+            label="Osobní nasazení"
           />
         </div>
       </div>

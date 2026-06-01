@@ -5,7 +5,6 @@ import { HeroDisplay } from "@/components/hero-display";
 import { LogoScroll } from "@/components/logo-scroll";
 import { ServicesBento } from "@/components/services-bento";
 import { TypewriterEffect } from "@/components/typewriter-effect";
-import AnimatedTextCycle from "@/components/ui/animated-text-cycle";
 import { portfolioItems } from "@/lib/portfolio";
 import { testimonials } from "@/lib/testimonials";
 
@@ -33,19 +32,13 @@ export default function HomePage() {
         <div className="mx-auto max-w-(--container-narrow)">
           <Eyebrow>Naše práce v kostce</Eyebrow>
           <h2 className="text-3xl md:text-4xl lg:text-5xl tracking-tight leading-[1.15]">
-            Tvoříme{" "}
-            <AnimatedTextCycle
-              words={["kampaně", "weby", "videa", "značky", "strategie"]}
-              interval={3500}
-              className="text-accent"
-            />
-            ,
-            <br className="hidden md:block" /> které pomáhají vašemu byznysu
-            růst.
+            Neděláme šablony.
+            <br className="hidden md:block" /> Tvoříme kampaně, které{" "}
+            <span className="text-accent">reálně prodávají</span>.
           </h2>
           <p className="text-lg text-[var(--theme-muted,#666)] max-w-xl mx-auto mt-8">
-            Žádný šum, žádné šablony. Jen kampaně, weby a obsah šitý na míru
-            realitním a cestovním agenturám v Česku.
+            Žádný šum. Jen funkční kampaně, rychlé weby a obsah ušitý na míru
+            realitním kancelářím a cestovkám v Česku.
           </p>
           <div className="mt-8">
             <Button href="#projekty" variant="outline">
@@ -124,13 +117,13 @@ export default function HomePage() {
           />
           <div className="w-16 h-[3px] bg-white/80 mx-auto my-6" />
           <p className="text-lg text-white/85 max-w-xl mx-auto leading-relaxed">
-            Každý nový klient nás posouvá. S každou kampaní se učíme, zlepšujeme
-            nástroje a rozšiřujeme to, co umíme, a co se naučíme u jednoho
-            klienta, posíláme dál ostatním.
+            Náš úspěch se měří tím vaším. Ať už jde o prodej bytu v Praze nebo
+            vyprodaný turnus na horách, dáváme do toho všechno. Co funguje,
+            replikujeme a neustále ladíme.
           </p>
           <p className="font-serif italic text-lg mt-8 text-white">
-            Proto do každé spolupráce dáváme všechno. Protože váš úspěch je i
-            ten náš.
+            Proto u nás nenajdete univerzální balíčky, ale tvrdou práci, která
+            se vyplatí.
           </p>
         </div>
       </section>
@@ -169,11 +162,12 @@ export default function HomePage() {
         <div className="max-w-(--container-narrow) mx-auto">
           <Eyebrow>Pojďme si promluvit</Eyebrow>
           <h2 className="text-4xl md:text-5xl mb-5">
-            Domluvte si nezávaznou schůzku
+            Pojďme probrat váš projekt
           </h2>
           <p className="text-[var(--theme-muted,#666)] max-w-xl mx-auto mb-8">
-            Posloucháme nejdřív, pak navrhujeme. Žádné šablony, žádné
-            automation, jen reálné výsledky pro váš byznys.
+            Zjistíme, kde vám utíkají peníze, a navrhneme strategii. Nejdřív
+            posloucháme, pak jednáme. Žádné prázdné sliby — jen reálná čísla pro
+            váš byznys.
           </p>
           <Button href="/kontakt" variant="primary">
             Domluvit schůzku
