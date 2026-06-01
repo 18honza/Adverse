@@ -30,15 +30,18 @@ export interface LogoItem {
 
 const GRAY = "525252"; // neutral-600 — tasteful on the cream surface
 
+// World-class names of the marketing / creative / social field — the best
+// in the craft, matching the "inspirují nás nejlepší" eyebrow. Monochrome
+// marks from the Simple Icons CDN. Swap for real client logos later.
 const defaultLogos: LogoItem[] = [
-  { src: `https://cdn.simpleicons.org/airbnb/${GRAY}`, alt: "Airbnb" },
-  { src: `https://cdn.simpleicons.org/bookingdotcom/${GRAY}`, alt: "Booking.com" },
-  { src: `https://cdn.simpleicons.org/expedia/${GRAY}`, alt: "Expedia" },
-  { src: `https://cdn.simpleicons.org/tripadvisor/${GRAY}`, alt: "Tripadvisor" },
-  { src: `https://cdn.simpleicons.org/mastercard/${GRAY}`, alt: "Mastercard" },
-  { src: `https://cdn.simpleicons.org/visa/${GRAY}`, alt: "Visa" },
-  { src: `https://cdn.simpleicons.org/samsung/${GRAY}`, alt: "Samsung" },
-  { src: `https://cdn.simpleicons.org/spotify/${GRAY}`, alt: "Spotify" },
+  { src: `https://cdn.simpleicons.org/meta/${GRAY}`, alt: "Meta" },
+  { src: `https://cdn.simpleicons.org/googleads/${GRAY}`, alt: "Google Ads" },
+  { src: `https://cdn.simpleicons.org/hubspot/${GRAY}`, alt: "HubSpot" },
+  { src: `https://cdn.simpleicons.org/semrush/${GRAY}`, alt: "Semrush" },
+  { src: `https://cdn.simpleicons.org/mailchimp/${GRAY}`, alt: "Mailchimp" },
+  { src: `https://cdn.simpleicons.org/hootsuite/${GRAY}`, alt: "Hootsuite" },
+  { src: `https://cdn.simpleicons.org/figma/${GRAY}`, alt: "Figma" },
+  { src: `https://cdn.simpleicons.org/behance/${GRAY}`, alt: "Behance" },
 ];
 
 function LogoCell({
