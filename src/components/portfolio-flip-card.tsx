@@ -2,25 +2,32 @@
 
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { ArrowUpRight, X, Play, ExternalLink } from "lucide-react";
+import { ArrowUpRight, X, Play, ExternalLink, Share2 } from "lucide-react";
 import type { PortfolioItem } from "@/lib/portfolio";
 import { cn } from "@/lib/cn";
 
 /**
- * Flippable portfolio card. Front shows the cover (or gradient placeholder)
- * with tag + title; click flips 180° around Y while scaling up so the back
- * has room to breathe. The back is a light, paper-like panel with the
- * project description and category-specific demo content. Click the close
- * X (or press Esc) to flip back — the card eases down to its original size.
+ * Flippable portfolio card — controlled by the parent so only one card can
+ * be open at a time. The FRONT shows the cover (or gradient placeholder)
+ * with tag + project title. Click flips 180° around Y while scaling up; the
+ * BACK is a full-bleed media panel (photo / video / web mockup depending on
+ * category) with a properly-oriented category label + client name and a
+ * category-specific action: visit the site (web), play the clip in place
+ * (video), or open the social profile (soc).
  */
 export function PortfolioFlipCard({
   item,
+  flipped,
+  onOpen,
+  onClose,
   className,
 }: {
   item: PortfolioItem;
+  flipped: boolean;
+  onOpen: () => void;
+  onClose: () => void;
   className?: string;
 }) {
-  const [flipped, setFlipped] = useState(false);
   const closeRef = useRef<HTMLButtonElement>(null);
   const frontRef = useRef<HTMLButtonElement>(null);
 
@@ -28,16 +35,15 @@ export function PortfolioFlipCard({
   useEffect(() => {
     if (!flipped) return;
     const handler = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setFlipped(false);
+      if (e.key === "Escape") onClose();
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [flipped]);
+  }, [flipped, onClose]);
 
   // Move focus to close button when flipped, back to card when unflipped
   useEffect(() => {
     if (flipped) closeRef.current?.focus({ preventScroll: true });
-    else frontRef.current?.focus({ preventScroll: true });
   }, [flipped]);
 
   return (
@@ -69,7 +75,7 @@ export function PortfolioFlipCard({
         <button
           ref={frontRef}
           type="button"
-          onClick={() => setFlipped(true)}
+          onClick={onOpen}
           aria-label={`Zobrazit detail projektu: ${item.title}`}
           aria-expanded={flipped}
           tabIndex={flipped ? -1 : 0}
@@ -87,6 +93,17 @@ export function PortfolioFlipCard({
             // clicks always reach the visible side (especially the X
             // button on the back face).
             pointerEvents: flipped ? "none" : "auto",
+            // Safari leaks the front face's content through to the back
+            // (mirror-flipped) despite backface-visibility, so we hard-swap
+            // each face's opacity to guarantee only one is ever painted.
+            // The swap must fire exactly when the rotation crosses 90°
+            // (edge-on). With the ease-out cubic-bezier(.22,1,.36,1) the
+            // rotation reaches 90° at ~0.1s of the 0.75s animation — NOT at
+            // the time-midpoint (0.375s). Swapping at 0.375s left the card
+            // blank from ~0.1s onward (front already facing away, back not
+            // yet shown). 0.1s keeps a visible face the whole flip.
+            opacity: flipped ? 0 : 1,
+            transition: "opacity 0s linear 0.1s",
           }}
         >
           {item.cover && (
@@ -126,8 +143,7 @@ export function PortfolioFlipCard({
         <div
           className={cn(
             "absolute inset-0 overflow-hidden",
-            "bg-bg text-text border border-divider",
-            "flex flex-col",
+            "bg-dark text-white border border-divider",
           )}
           style={{
             transform: "rotateY(180deg)",
@@ -136,23 +152,28 @@ export function PortfolioFlipCard({
             // Inverse of the front — only receive clicks when this face
             // is the one facing the viewer.
             pointerEvents: flipped ? "auto" : "none",
+            // Inverse of the front's opacity swap (see above) — appears as
+            // the rotation crosses 90°, so a face is always visible and the
+            // two never co-exist.
+            opacity: flipped ? 1 : 0,
+            transition: "opacity 0s linear 0.1s",
           }}
           aria-hidden={!flipped}
         >
-          <BackContent item={item} />
+          <BackContent item={item} active={flipped} />
 
           {/* Close button */}
           <button
             ref={closeRef}
             type="button"
-            onClick={() => setFlipped(false)}
+            onClick={onClose}
             aria-label="Zavřít detail"
             tabIndex={flipped ? 0 : -1}
             className={cn(
-              "absolute top-3 right-3 z-20 w-8 h-8 rounded-full",
-              "bg-text text-white",
+              "absolute top-3 right-3 z-30 w-8 h-8 rounded-full",
+              "bg-white/15 backdrop-blur-md border border-white/25 text-white",
               "flex items-center justify-center cursor-pointer",
-              "hover:bg-accent transition-colors",
+              "hover:bg-accent hover:border-accent transition-colors",
             )}
           >
             <X className="w-4 h-4" />
@@ -165,36 +186,26 @@ export function PortfolioFlipCard({
 
 // ============ Back side content ============
 
-function BackContent({ item }: { item: PortfolioItem }) {
+function BackContent({ item, active }: { item: PortfolioItem; active: boolean }) {
+  // Video plays inline once the user hits the play action.
+  const [playing, setPlaying] = useState(false);
+
+  // Reset playback whenever the card closes so reopening starts clean.
+  useEffect(() => {
+    if (!active) setPlaying(false);
+  }, [active]);
+
   return (
-    <>
-      {/* Top media / preview area — light theme */}
-      <div
-        className={cn(
-          "relative w-full aspect-[16/9] shrink-0 overflow-hidden",
-          "bg-surface-alt border-b border-divider",
-        )}
-      >
-        {/* Subtle category-tinted gradient backdrop */}
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 opacity-90"
-          style={{ backgroundImage: backdropFor(item.category) }}
-        />
-
-        {/* Subtle dot grid for texture */}
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 opacity-50 [background-image:radial-gradient(circle,rgba(0,0,0,0.06)_1px,transparent_1px)] [background-size:14px_14px]"
-        />
-
-        {/* Real media if provided, otherwise a category visual placeholder */}
-        {item.category === "video" && item.backVideo ? (
+    <div className="relative w-full h-full">
+      {/* ---- Full-bleed media background ---- */}
+      <div className="absolute inset-0">
+        {item.category === "video" && playing && item.backVideo ? (
           <video
             src={item.backVideo}
+            autoPlay
             controls
             playsInline
-            className="absolute inset-0 w-full h-full object-cover bg-black"
+            className="w-full h-full object-cover bg-black"
           />
         ) : item.backImage ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -202,158 +213,218 @@ function BackContent({ item }: { item: PortfolioItem }) {
             src={item.backImage}
             alt=""
             loading="lazy"
-            className="absolute inset-0 w-full h-full object-cover"
+            className="w-full h-full object-cover"
           />
         ) : (
-          <CategoryPlaceholder category={item.category} />
+          <CategoryBackdrop category={item.category} />
         )}
       </div>
 
-      {/* Body */}
-      <div className="flex-1 px-5 sm:px-6 pt-4 pb-5 flex flex-col min-h-0 overflow-y-auto">
-        <span className="text-[10px] uppercase tracking-[3px] font-bold text-accent">
-          {item.tag}
-        </span>
-        <h3 className="font-display font-black uppercase text-base sm:text-lg text-text mt-1 mb-2 leading-tight">
-          {item.title}
-        </h3>
+      {/* ---- Readability gradient (skip while a video is actively playing) ---- */}
+      {!(item.category === "video" && playing) && (
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/10"
+        />
+      )}
 
-        {item.description && (
-          <p className="text-xs sm:text-sm text-text-muted leading-relaxed mb-3">
-            {item.description}
-          </p>
-        )}
-
-        {item.results && item.results.length > 0 && (
-          <ul className="grid grid-cols-2 sm:grid-cols-3 gap-x-3 gap-y-1.5 mb-3">
-            {item.results.map((r) => (
-              <li
-                key={r}
-                className="text-[10px] font-bold text-accent uppercase tracking-[1px] border-l-2 border-accent pl-2 leading-tight"
-              >
-                {r}
-              </li>
-            ))}
-          </ul>
-        )}
-
-        {item.category === "web" && item.liveUrl && (
-          <a
-            href={item.liveUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={cn(
-              "mt-auto inline-flex items-center gap-2 w-fit",
-              "text-xs font-bold uppercase tracking-[2px]",
-              "bg-text text-white px-4 py-2 rounded-sm",
-              "hover:bg-accent transition-colors",
-            )}
-          >
-            Navštívit web
-            <ExternalLink className="w-3.5 h-3.5" />
-          </a>
-        )}
-
-        {item.category !== "web" && (
-          <span className="mt-auto text-[10px] uppercase tracking-[2px] text-text-faint">
-            Stiskni ✕ pro zavření
+      {/* ---- Foreground content (hidden while video plays so controls are usable) ---- */}
+      {!(item.category === "video" && playing) && (
+        <div className="absolute inset-0 z-10 flex flex-col justify-end p-5 sm:p-6">
+          <span className="text-[10px] sm:text-xs uppercase tracking-[3px] font-bold text-accent">
+            {item.tag}
           </span>
-        )}
-      </div>
-    </>
+          <h3 className="font-display font-black uppercase text-lg sm:text-xl text-white mt-1 leading-tight">
+            {item.client}
+          </h3>
+
+          {item.description && (
+            <p className="text-xs text-white/70 leading-relaxed mt-2 max-w-[40ch] line-clamp-3">
+              {item.description}
+            </p>
+          )}
+
+          {/* Category-specific results (ad cards) */}
+          {item.results && item.results.length > 0 && (
+            <ul className="flex flex-wrap gap-x-3 gap-y-1 mt-3">
+              {item.results.map((r) => (
+                <li
+                  key={r}
+                  className="text-[10px] font-bold text-white uppercase tracking-[1px] border-l-2 border-accent pl-2 leading-tight"
+                >
+                  {r}
+                </li>
+              ))}
+            </ul>
+          )}
+
+          {/* Category-specific action */}
+          <div className="mt-4">
+            <ActionButton item={item} onPlay={() => setPlaying(true)} />
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
 
-// ============ Category-specific placeholder visuals ============
+// ============ Per-category action ============
 
-function CategoryPlaceholder({ category }: { category: PortfolioItem["category"] }) {
-  if (category === "video") {
+function ActionButton({
+  item,
+  onPlay,
+}: {
+  item: PortfolioItem;
+  onPlay: () => void;
+}) {
+  const base = cn(
+    "inline-flex items-center gap-2 w-fit",
+    "text-xs font-bold uppercase tracking-[2px]",
+    "bg-white text-dark px-4 py-2.5",
+    "hover:bg-accent hover:text-white transition-colors",
+  );
+
+  if (item.category === "web" && item.liveUrl) {
     return (
-      <div className="absolute inset-0 flex items-center justify-center">
-        <div className="w-14 h-14 rounded-full border-2 border-accent flex items-center justify-center text-accent bg-bg/80 backdrop-blur-sm">
-          <Play className="w-6 h-6 ml-0.5 fill-current" />
+      <a href={item.liveUrl} target="_blank" rel="noopener noreferrer" className={base}>
+        Navštívit web
+        <ExternalLink className="w-3.5 h-3.5" />
+      </a>
+    );
+  }
+
+  if (item.category === "soc" && item.socialUrl) {
+    return (
+      <a href={item.socialUrl} target="_blank" rel="noopener noreferrer" className={base}>
+        Zobrazit profil
+        <Share2 className="w-3.5 h-3.5" />
+      </a>
+    );
+  }
+
+  if (item.category === "video") {
+    return (
+      <button type="button" onClick={onPlay} className={cn(base, "cursor-pointer")}>
+        Přehrát video
+        <Play className="w-3.5 h-3.5 fill-current" />
+      </button>
+    );
+  }
+
+  // ad / grafika — no external destination, the visual + stats speak for it.
+  return null;
+}
+
+// ============ Category-specific backdrop visuals (placeholders) ============
+
+function CategoryBackdrop({ category }: { category: PortfolioItem["category"] }) {
+  if (category === "video") {
+    // Dark stage with a large play affordance
+    return (
+      <div
+        className="absolute inset-0 flex items-center justify-center"
+        style={{ backgroundImage: "linear-gradient(135deg,#1a1a1a 0%,#0d0d0d 100%)" }}
+      >
+        <div className="w-16 h-16 rounded-full border-2 border-white/70 flex items-center justify-center text-white/90">
+          <Play className="w-7 h-7 ml-1 fill-current" />
         </div>
       </div>
     );
   }
+
   if (category === "web") {
-    // Stylised browser window mockup
+    // Stylised browser window mockup on a light surface
     return (
-      <div className="absolute inset-0 flex items-center justify-center px-8">
-        <svg
-          viewBox="0 0 320 180"
-          className="w-full max-w-[260px] text-text"
-        >
-          <g fill="none" stroke="currentColor" strokeOpacity="0.55" strokeWidth="1.5">
+      <div
+        className="absolute inset-0 flex items-center justify-center px-8"
+        style={{ backgroundImage: "linear-gradient(135deg,#2a2a2a 0%,#161616 100%)" }}
+      >
+        <svg viewBox="0 0 320 180" className="w-full max-w-[260px] text-white/85">
+          <g fill="none" stroke="currentColor" strokeOpacity="0.5" strokeWidth="1.5">
             <rect x="20" y="20" width="280" height="140" rx="4" />
             <line x1="20" y1="44" x2="300" y2="44" />
           </g>
-          <g fill="currentColor" fillOpacity="0.5">
+          <g fill="currentColor" fillOpacity="0.45">
             <circle cx="34" cy="32" r="3" />
             <circle cx="46" cy="32" r="3" />
             <circle cx="58" cy="32" r="3" />
           </g>
-          <rect x="90" y="27" width="150" height="10" rx="5" fill="currentColor" fillOpacity="0.13" />
-          <g fill="currentColor" fillOpacity="0.18">
+          <rect x="90" y="27" width="150" height="10" rx="5" fill="currentColor" fillOpacity="0.18" />
+          <g fill="currentColor" fillOpacity="0.2">
             <rect x="40" y="62" width="100" height="8" />
             <rect x="40" y="76" width="70" height="6" />
             <rect x="40" y="92" width="80" height="6" />
-            <rect x="40" y="116" width="50" height="20" rx="2" fill="#e63030" fillOpacity="0.85" />
           </g>
-          <rect x="170" y="62" width="110" height="76" rx="2" fill="currentColor" fillOpacity="0.1" />
+          <rect x="40" y="116" width="50" height="20" rx="2" fill="#e63030" />
+          <rect x="170" y="62" width="110" height="76" rx="2" fill="currentColor" fillOpacity="0.12" />
         </svg>
       </div>
     );
   }
+
   if (category === "ad") {
-    // Stylised ad with bars (performance metaphor)
+    // Performance bars
     return (
-      <div className="absolute inset-0 flex items-end justify-center gap-3 px-10 pb-10">
+      <div
+        className="absolute inset-0 flex items-end justify-center gap-3 px-10 pb-16"
+        style={{ backgroundImage: "linear-gradient(135deg,#2a2a2a 0%,#161616 100%)" }}
+      >
         {[40, 60, 35, 80, 55, 95].map((h, i) => (
           <div
             key={i}
             className="w-6 sm:w-8 rounded-t-sm"
             style={{
               height: `${h}%`,
-              backgroundColor:
-                i === 3 || i === 5 ? "#e63030" : "rgba(17,17,17,0.18)",
+              backgroundColor: i === 3 || i === 5 ? "#e63030" : "rgba(255,255,255,0.18)",
             }}
           />
         ))}
       </div>
     );
   }
+
+  if (category === "soc") {
+    // Instagram-style feed grid
+    return (
+      <div
+        className="absolute inset-0 flex items-center justify-center px-10"
+        style={{ backgroundImage: "linear-gradient(135deg,#2a2a2a 0%,#161616 100%)" }}
+      >
+        <div className="grid grid-cols-3 gap-1.5 w-full max-w-[220px]">
+          {Array.from({ length: 9 }).map((_, i) => (
+            <div
+              key={i}
+              className="aspect-square rounded-[2px]"
+              style={{
+                backgroundColor:
+                  i % 4 === 0 ? "#e63030" : "rgba(255,255,255,0.14)",
+              }}
+            />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   // grafika — palette swatches
   return (
-    <div className="absolute inset-0 flex items-center justify-center gap-2 px-8">
+    <div
+      className="absolute inset-0 flex items-center justify-center gap-2 px-8 pb-12"
+      style={{ backgroundImage: "linear-gradient(135deg,#2a2a2a 0%,#161616 100%)" }}
+    >
       {[
         "#e63030",
-        "#111111",
-        "rgba(17,17,17,0.5)",
-        "rgba(17,17,17,0.25)",
-        "rgba(17,17,17,0.12)",
+        "#ffffff",
+        "rgba(255,255,255,0.55)",
+        "rgba(255,255,255,0.3)",
+        "rgba(255,255,255,0.15)",
       ].map((c, i) => (
         <div
           key={i}
-          className="w-10 sm:w-14 h-16 sm:h-24 rounded-sm shadow-sm"
+          className="w-10 sm:w-14 h-16 sm:h-24 rounded-sm"
           style={{ backgroundColor: c }}
         />
       ))}
     </div>
   );
-}
-
-// ============ Per-category backdrop tint ============
-
-function backdropFor(category: PortfolioItem["category"]) {
-  switch (category) {
-    case "web":
-      return "linear-gradient(135deg, #fafafa 0%, #f0f0f0 100%)";
-    case "ad":
-      return "linear-gradient(135deg, #fdfdfd 0%, #f5f5f5 100%)";
-    case "grafika":
-      return "linear-gradient(135deg, #fafafa 0%, #f3eded 100%)";
-    case "video":
-      return "linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%)";
-  }
 }

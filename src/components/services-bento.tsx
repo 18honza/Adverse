@@ -39,7 +39,18 @@ export function ServicesBento() {
         <span className="inline-block text-xs font-bold uppercase tracking-[4px] text-accent mb-4">
           Co umíme
         </span>
-        <h2 className="text-4xl md:text-5xl text-white">
+        {/* Inherit the body's active theme colour so the heading stays
+            readable while the scroll-theme transitions the page from a
+            light surface to this section's dark surface. Transition timing
+            matches the body's 480ms easing in globals.css so they move
+            together as one. */}
+        <h2
+          className="text-4xl md:text-5xl"
+          style={{
+            color: "var(--theme-fg, #111)",
+            transition: "color 480ms cubic-bezier(0.22, 1, 0.36, 1)",
+          }}
+        >
           Marketing, který se vyplatí
         </h2>
       </header>

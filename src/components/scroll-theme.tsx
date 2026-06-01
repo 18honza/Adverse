@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 
 /**
  * Section-owned scroll theming. Mount once near the page root. Every
@@ -13,24 +14,41 @@ import { useEffect } from "react";
  * Adding more = add a CSS rule in globals.css and use the new value as a
  * `data-section-theme` on any section. No code changes needed here.
  *
- * Default theme: `light`. We never tear it down — the last section to win
- * remains the theme until the next one crosses center.
+ * Default theme: `light`. On every route change we re-query the sections
+ * and reset to the default — otherwise the previous page's theme would
+ * stick to <body> and the new page's section elements (fresh DOM nodes)
+ * would never be observed because we'd be holding stale references.
  */
 export function ScrollTheme({ defaultTheme = "light" }: { defaultTheme?: string }) {
-  useEffect(() => {
-    const sections = Array.from(
-      document.querySelectorAll<HTMLElement>("[data-section-theme]"),
-    );
-    if (!sections.length) return;
+  const pathname = usePathname();
 
-    // Set the default immediately so we don't flash an unstyled state.
+  useEffect(() => {
+    // Reset to default on every route change so we never inherit the
+    // outgoing page's theme while the new page is rendering.
     document.body.dataset.theme = defaultTheme;
 
     // Track which section is currently "active" — the one whose centre is
     // closest to the viewport centre.
     let activeId: string | null = null;
+    // Re-query sections lazily so DOM swaps (route transitions, suspense
+    // boundaries resolving, etc.) are picked up automatically.
+    let sections: HTMLElement[] = [];
+    const refreshSections = () => {
+      sections = Array.from(
+        document.querySelectorAll<HTMLElement>("[data-section-theme]"),
+      );
+    };
 
     const update = () => {
+      // If our cached list went stale (page swap), refresh it.
+      if (
+        !sections.length ||
+        !document.contains(sections[0])
+      ) {
+        refreshSections();
+      }
+      if (!sections.length) return;
+
       const vpCenter = window.innerHeight / 2;
       let best: { id: string; dist: number; theme: string } | null = null;
 
@@ -65,14 +83,31 @@ export function ScrollTheme({ defaultTheme = "light" }: { defaultTheme?: string 
       });
     };
 
-    update();
+    refreshSections();
+    // Run after the new route's DOM has had a chance to commit.
+    requestAnimationFrame(() => {
+      refreshSections();
+      update();
+    });
+
+    // Also watch DOM mutations on <main> — when the page swaps, sections
+    // appear/disappear and we want to react immediately rather than wait
+    // for the first scroll event.
+    const main = document.querySelector("main") ?? document.body;
+    const observer = new MutationObserver(() => {
+      refreshSections();
+      update();
+    });
+    observer.observe(main, { childList: true, subtree: true });
+
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll, { passive: true });
     return () => {
+      observer.disconnect();
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
     };
-  }, [defaultTheme]);
+  }, [defaultTheme, pathname]);
 
   return null;
 }

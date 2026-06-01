@@ -12,10 +12,14 @@ import { cn } from "@/lib/cn";
 
 type Filter = "all" | PortfolioCategory;
 
-const filters: Filter[] = ["all", "web", "ad", "grafika", "video"];
+const filters: Filter[] = ["all", "web", "ad", "grafika", "video", "soc"];
 
 export function PortfolioFilter() {
   const [active, setActive] = useState<Filter>("all");
+  // Only one card may be flipped open at a time. We track the open card's
+  // slug here (lifted out of the card) so opening a second card closes the
+  // first automatically.
+  const [openSlug, setOpenSlug] = useState<string | null>(null);
 
   const visible =
     active === "all"
@@ -34,7 +38,11 @@ export function PortfolioFilter() {
             key={f}
             role="tab"
             aria-selected={active === f}
-            onClick={() => setActive(f)}
+            onClick={() => {
+              setActive(f);
+              // Changing filter closes any open card.
+              setOpenSlug(null);
+            }}
             className={cn(
               "text-xs font-bold uppercase tracking-[2px] px-6 py-3 border transition-all duration-150 cursor-pointer",
               active === f
@@ -63,7 +71,13 @@ export function PortfolioFilter() {
                 transition={{ duration: 0.25 }}
                 className="aspect-[4/3]"
               >
-                <PortfolioFlipCard item={item} className="w-full h-full" />
+                <PortfolioFlipCard
+                  item={item}
+                  flipped={openSlug === item.slug}
+                  onOpen={() => setOpenSlug(item.slug)}
+                  onClose={() => setOpenSlug(null)}
+                  className="w-full h-full"
+                />
               </motion.div>
             ))}
           </AnimatePresence>
