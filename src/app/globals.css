@@ -12,10 +12,12 @@
   --color-dark: #0d0d0d;
   --color-surface-alt: #f8f8f8;
 
-  /* Typography */
-  --font-sans: var(--font-inter), "Helvetica Neue", Arial, sans-serif;
-  --font-display: "Arial Black", "Helvetica Neue", Arial, sans-serif;
-  --font-serif: Georgia, "Times New Roman", serif;
+  /* Typography — Fontshare (Indian Type Foundry), one cohesive system.
+     Clash Display = brand headings, General Sans = body/UI, Zodiak =
+     editorial italic accents. Loaded via <link> in layout.tsx. */
+  --font-sans: "General Sans", var(--font-inter), "Helvetica Neue", Arial, sans-serif;
+  --font-display: "Clash Display", "Arial Black", "Helvetica Neue", Arial, sans-serif;
+  --font-serif: "Zodiak", Georgia, "Times New Roman", serif;
 
   /* Layout containers */
   --container-narrow: 880px;
@@ -94,7 +96,9 @@ body[data-theme="red"] {
 
 h1, h2, h3, h4 {
   font-family: var(--font-display);
-  font-weight: 900;
+  /* Clash Display tops out at 700 — request 700 so we get the real Bold
+     master rather than the browser clamping a 900 request. */
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   line-height: 1.1;
