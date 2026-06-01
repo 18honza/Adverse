@@ -2,6 +2,7 @@ import { Eyebrow } from "@/components/eyebrow";
 import { Button } from "@/components/ui/button";
 import { PortfolioTile } from "@/components/portfolio-tile";
 import { HeroDisplay } from "@/components/hero-display";
+import { LogoScroll } from "@/components/logo-scroll";
 import { ServicesBento } from "@/components/services-bento";
 import { TypewriterEffect } from "@/components/typewriter-effect";
 import AnimatedTextCycle from "@/components/ui/animated-text-cycle";
@@ -16,6 +17,9 @@ export default function HomePage() {
     <>
       {/* HERO — massive typography + red squiggle on cream */}
       <HeroDisplay />
+
+      {/* CLIENT LOGOS — scroll-assembling logo row */}
+      <LogoScroll />
 
       {/* SERVICES — bento grid (dark, hover-fill per card) */}
       <ServicesBento />
