@@ -1,7 +1,18 @@
 import type { NextConfig } from "next";
 import path from "node:path";
 
+// Two build targets share this config:
+//   npm run build          → Vercel (Node runtime, /api/contact Route Handler)
+//   npm run build:static   → static export (out/ + server/contact.php)
+// BUILD_TARGET=static is set by scripts/build-static.mjs before invoking
+// `npm run build`, so the postbuild hook and this flag fire together.
+const isStatic = process.env.BUILD_TARGET === "static";
+
 const nextConfig: NextConfig = {
+  ...(isStatic && { output: "export", images: { unoptimized: true } }),
+  env: {
+    NEXT_PUBLIC_CONTACT_ENDPOINT: isStatic ? "/contact.php" : "/api/contact",
+  },
   turbopack: {
     // Pin workspace root to this project (avoid picking up stray
     // ~/package-lock.json that exists on this machine)

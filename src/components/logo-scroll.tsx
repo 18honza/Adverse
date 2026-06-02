@@ -74,7 +74,7 @@ function LogoCell({
       draggable={false}
       className={cn(
         "inline-block h-7 md:h-9 w-auto select-none",
-        "opacity-80 hover:opacity-100 transition-opacity duration-200",
+        "opacity-80 hover:opacity-100 transition-opacity duration-200"
       )}
       style={
         reduced
@@ -93,7 +93,8 @@ export function LogoScroll({
   eyebrow?: string;
 }) {
   const ref = useRef<HTMLElement | null>(null);
-  const reduced = useReducedMotion() ?? false;
+  // NOTEMS: tohle je blby napad, animace se rozbijou kdyz "Show animations in Windows" je false
+  const reduced = false; // useReducedMotion();
 
   // Progress runs from 0 (section top reaches the viewport bottom) to 1
   // (section centre reaches the viewport centre) — the assemble window.

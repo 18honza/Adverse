@@ -4,6 +4,7 @@ import { Eyebrow } from "@/components/eyebrow";
 import { TestimonialsColumn } from "@/components/testimonials-columns";
 import { testimonials } from "@/lib/testimonials";
 
+// NOTEMS: na tehle strance je pop in bug, itemy v TestimonialsColumn popujou ze spoda
 export const metadata: Metadata = {
   title: "Reference",
   description:

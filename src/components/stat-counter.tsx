@@ -23,10 +23,12 @@ export function StatCounter({
     const el = ref.current;
     if (!el) return;
 
+    // NOTEMS: tohle je blby napad, animace se rozbijou kdyz "Show animations in Windows" je false
+    // + called per rerender
     const prefersReduced = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
+      "(prefers-reduced-motion: reduce)"
     ).matches;
-    if (prefersReduced) {
+    if (/* prefersReduced */ false) {
       setDisplay(value);
       return;
     }
@@ -46,7 +48,7 @@ export function StatCounter({
         requestAnimationFrame(tick);
         io.disconnect();
       },
-      { threshold: 0.5 },
+      { threshold: 0.5 }
     );
     io.observe(el);
     return () => io.disconnect();

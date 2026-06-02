@@ -4,7 +4,6 @@ import * as React from "react";
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle2 } from "lucide-react";
-import { sendContact } from "@/app/kontakt/actions";
 import { ProgressIndicator } from "@/components/ui/progress-indicator";
 import { cn } from "@/lib/cn";
 
@@ -84,13 +83,28 @@ export function ContactForm() {
     setServerError("");
     const fd = new FormData();
     Object.entries(values).forEach(([k, v]) => fd.append(k, v));
-    const res = await sendContact({ status: "idle" }, fd);
-    if (res.status === "success") {
-      setStatus("success");
-    } else if (res.status === "error") {
+    try {
+      const response = await fetch(
+        process.env.NEXT_PUBLIC_CONTACT_ENDPOINT ?? "/contact.php",
+        { method: "POST", body: fd },
+      );
+      const data = (await response.json()) as {
+        status: string;
+        error?: string;
+        fields?: string[];
+      };
+      if (data.status === "success") {
+        setStatus("success");
+      } else {
+        setStatus("error");
+        setServerError(
+          data.error ?? "Něco se pokazilo. Zkuste to prosím znovu.",
+        );
+        if (data.fields) setErrors(new Set(data.fields as (keyof Values)[]));
+      }
+    } catch {
       setStatus("error");
-      setServerError(res.error);
-      if (res.fields) setErrors(new Set(res.fields as (keyof Values)[]));
+      setServerError("Něco se pokazilo. Zkuste to prosím znovu.");
     }
   }
 

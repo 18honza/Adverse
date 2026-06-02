@@ -1,0 +1,15 @@
+Options -MultiViews -Indexes
+RewriteEngine On
+
+# Next.js 16 RSC payloads: dot-separated request → directory-separated file
+# e.g. /o-nas/__next.o-nas.__PAGE__.txt → /o-nas/__next.o-nas/__PAGE__.txt
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^(.+/__next\.[^./]+)\.(__.+)$ /$1/$2 [L]
+
+# Serve .html for extensionless page URLs (/kontakt → kontakt.html)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}.html -f
+RewriteRule ^(.+)$ $1.html [L]
+
+ErrorDocument 404 /404.html

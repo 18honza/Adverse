@@ -19,7 +19,8 @@ import { StatCounter } from "@/components/stat-counter";
  * Reduced-motion: full squiggle painted instantly, no snake motion.
  */
 export function HeroDisplay() {
-  const reduceMotion = useReducedMotion();
+  // NOTEMS: tohle je blby napad, animace se rozbijou kdyz "Show animations in Windows" je false
+  const reduceMotion = false; // useReducedMotion();
 
   return (
     <section
@@ -35,7 +36,11 @@ export function HeroDisplay() {
         {/* Headline area: back layer + heading + front (masked) layer */}
         <div className="relative flex items-center justify-center min-h-[clamp(11rem,28vw,22rem)]">
           {/* BACK squiggle — sits behind the type */}
-          <Squiggle masked={false} reduceMotion={Boolean(reduceMotion)} className="z-0" />
+          <Squiggle
+            masked={false}
+            reduceMotion={Boolean(reduceMotion)}
+            className="z-0"
+          />
 
           <h1
             className={[
@@ -54,7 +59,11 @@ export function HeroDisplay() {
           </h1>
 
           {/* FRONT squiggle — same path + animation, masked to alternating bands */}
-          <Squiggle masked reduceMotion={Boolean(reduceMotion)} className="z-20" />
+          <Squiggle
+            masked
+            reduceMotion={Boolean(reduceMotion)}
+            className="z-20"
+          />
         </div>
 
         {/* Subhead with bolded key phrases */}

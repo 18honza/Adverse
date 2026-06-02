@@ -15,8 +15,10 @@
   /* Typography — Fontshare (Indian Type Foundry), one cohesive system.
      Clash Display = brand headings, General Sans = body/UI, Zodiak =
      editorial italic accents. Loaded via <link> in layout.tsx. */
-  --font-sans: "General Sans", var(--font-inter), "Helvetica Neue", Arial, sans-serif;
-  --font-display: "Clash Display", "Arial Black", "Helvetica Neue", Arial, sans-serif;
+  --font-sans: "General Sans", var(--font-inter), "Helvetica Neue", Arial,
+    sans-serif;
+  --font-display: "Clash Display", "Arial Black", "Helvetica Neue", Arial,
+    sans-serif;
   --font-serif: "Zodiak", Georgia, "Times New Roman", serif;
 
   /* Layout containers */
@@ -45,7 +47,7 @@ body {
   overflow-x: clip;
   /* Scroll-driven theme transitions — colour transitions only, no layout */
   transition: background-color 480ms cubic-bezier(0.22, 1, 0.36, 1),
-              color 480ms cubic-bezier(0.22, 1, 0.36, 1);
+    color 480ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 /* ============ Scroll themes ============
@@ -88,13 +90,17 @@ body[data-theme="red"] {
   --theme-accent: #ffffff;
 }
 
-@media (prefers-reduced-motion: reduce) {
+/* NOTEMS: tohle je blby napad, animace se rozbijou kdyz "Show animations in Windows" je false*/
+/* @media (prefers-reduced-motion: reduce) {
   body {
     transition: none;
   }
 }
-
-h1, h2, h3, h4 {
+ */
+h1,
+h2,
+h3,
+h4 {
   font-family: var(--font-display);
   /* Clash Display tops out at 700 — request 700 so we get the real Bold
      master rather than the browser clamping a 900 request. */
@@ -113,8 +119,12 @@ h1, h2, h3, h4 {
 
 /* === Marquee === */
 @keyframes marquee-scroll {
-  from { transform: translateX(0); }
-  to   { transform: translateX(-50%); }
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
 }
 .marquee-track {
   animation: marquee-scroll 30s linear infinite;
@@ -123,8 +133,13 @@ h1, h2, h3, h4 {
 
 /* === Hero side accent pulse === */
 @keyframes accent-pulse {
-  0%, 100% { opacity: 0.3; }
-  50%      { opacity: 0.6; }
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.6;
+  }
 }
 .accent-pulse {
   animation: accent-pulse 4s ease-in-out infinite;
@@ -132,16 +147,22 @@ h1, h2, h3, h4 {
 
 /* === Shine sweep on dividers === */
 @keyframes divider-shine {
-  0%   { left: -100%; }
-  60%  { left: 100%; }
-  100% { left: 100%; }
+  0% {
+    left: -100%;
+  }
+  60% {
+    left: 100%;
+  }
+  100% {
+    left: 100%;
+  }
 }
 .shine-divider {
   position: relative;
   overflow: hidden;
 }
 .shine-divider::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: -100%;
@@ -150,11 +171,12 @@ h1, h2, h3, h4 {
   background: linear-gradient(to right, transparent, #fff, transparent);
   animation: divider-shine 3s ease-in-out infinite;
 }
-
-@media (prefers-reduced-motion: reduce) {
+/* NOTEMS: tohle je blby napad, animace se rozbijou kdyz "Show animations in Windows" je false*/
+/* @media (prefers-reduced-motion: reduce) {
   .marquee-track,
   .accent-pulse,
   .shine-divider::before {
     animation: none;
   }
 }
+ */
