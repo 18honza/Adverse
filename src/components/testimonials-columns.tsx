@@ -38,15 +38,19 @@ export function TestimonialsColumn({
               <article
                 key={`${dupIdx}-${i}`}
                 className={cn(
-                  "p-8 md:p-9 max-w-xs w-80",
+                  // Mobile (2 columns side by side): fluid half-viewport
+                  // width + tighter padding. md+: original fixed 320px card.
+                  "p-4 md:p-9 w-[calc(50vw-1.5rem)] max-w-xs md:w-80",
                   "border border-divider bg-bg",
                   "transition-colors duration-200 hover:border-text/30",
                 )}
               >
-                <span className="text-xs font-bold uppercase tracking-[2px] text-accent block mb-4">
+                <span className="text-[10px] md:text-xs font-bold uppercase tracking-[2px] text-accent block mb-3 md:mb-4">
                   {t.industry}
                 </span>
-                <p className="text-text leading-relaxed">{t.quote}</p>
+                <p className="text-text leading-relaxed text-sm md:text-base">
+                  {t.quote}
+                </p>
                 <div className="flex items-center gap-3 mt-6">
                   <Avatar name={t.name} src={t.image} />
                   <div>
@@ -76,7 +80,7 @@ function Avatar({ name, src }: { name: string; src?: string }) {
         alt={name}
         width={40}
         height={40}
-        className="h-10 w-10 rounded-full object-cover bg-surface-alt shrink-0"
+        className="h-8 w-8 md:h-10 md:w-10 rounded-full object-cover bg-surface-alt shrink-0"
       />
     );
   }
@@ -89,7 +93,7 @@ function Avatar({ name, src }: { name: string; src?: string }) {
   return (
     <div
       aria-hidden="true"
-      className="h-10 w-10 rounded-full bg-text text-white flex items-center justify-center font-bold text-xs tracking-wide shrink-0"
+      className="h-8 w-8 md:h-10 md:w-10 rounded-full bg-text text-white flex items-center justify-center font-bold text-[10px] md:text-xs tracking-wide shrink-0"
     >
       {initials}
     </div>

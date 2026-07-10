@@ -50,7 +50,7 @@ export default function SluzbyPage() {
     <>
       <PageHero
         eyebrow="Služby"
-        title="Co pro vás odmakáme"
+        title="Co pro vás děláme"
         description="Šest hlavních oblastí, ve kterých jsme kovaní. Pracujeme primárně s realitními kancelářemi a cestovními agenturami v ČR. Žádná univerzální řešení — každý náš klient dostává stoprocentní osobní servis a strategie, které reálně prodávají."
       />
 

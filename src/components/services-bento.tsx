@@ -15,13 +15,15 @@ interface BentoCard {
   hero?: boolean;
 }
 
+// Mobile gets a 2-column mosaic (dense flow backfills the gaps), md+ keeps
+// the original 12-column bento untouched.
 const layout: BentoCard[] = [
-  { slug: "meta-ads", span: "md:col-span-3 md:row-span-1" },
-  { slug: "weby", span: "md:col-span-9 md:row-span-1", hero: true },
-  { slug: "social-media", span: "md:col-span-3 md:row-span-2" },
-  { slug: "google-ads", span: "md:col-span-5 md:row-span-1" },
-  { slug: "video", span: "md:col-span-4 md:row-span-1" },
-  { slug: "grafika", span: "md:col-span-9 md:row-span-1" },
+  { slug: "meta-ads", span: "col-span-1 md:col-span-3 md:row-span-1" },
+  { slug: "weby", span: "col-span-2 md:col-span-9 md:row-span-1", hero: true },
+  { slug: "social-media", span: "col-span-1 md:col-span-3 md:row-span-2" },
+  { slug: "google-ads", span: "col-span-1 md:col-span-5 md:row-span-1" },
+  { slug: "video", span: "col-span-1 md:col-span-4 md:row-span-1" },
+  { slug: "grafika", span: "col-span-2 md:col-span-9 md:row-span-1" },
 ];
 
 const VIEWPORT_TRIGGER = { once: true, amount: 0.2 } as const;
@@ -58,7 +60,10 @@ export function ServicesBento() {
       <div
         className={cn(
           "mx-auto max-w-(--container-default)",
-          "grid grid-cols-1 md:grid-cols-12 gap-3 md:gap-4",
+          "grid grid-cols-2 md:grid-cols-12 gap-3 md:gap-4",
+          // Dense flow lets small cards backfill next to each other on
+          // mobile (meta+social share a row before the full-width hero).
+          "grid-flow-dense md:grid-flow-row",
           "md:auto-rows-[220px]",
         )}
       >
@@ -115,7 +120,10 @@ function BentoCardItem({
       }
       className={cn(
         "relative overflow-hidden",
-        "min-h-[220px] md:min-h-0",
+        // Mobile mosaic: compact tiles (taller for the full-width hero),
+        // md+ heights come from the grid's auto-rows.
+        card.hero ? "min-h-[190px]" : "min-h-[150px]",
+        "md:min-h-0",
         "group cursor-default",
         // Default: warm dark-gray. On hover the background swaps to
         // var(--c-fill) over 300ms — smooth fade between the two states.
@@ -129,15 +137,15 @@ function BentoCardItem({
       <HoverArcs />
 
       {/* Content */}
-      <div className="relative z-10 h-full flex flex-col p-6 md:p-7">
+      <div className="relative z-10 h-full flex flex-col p-4 sm:p-6 md:p-7">
         {/* Top row: icon + number on left, arrow on right */}
         <div className="flex items-start justify-between gap-3">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <Icon
               aria-hidden="true"
               strokeWidth={1.75}
               className={cn(
-                "w-7 h-7 transition-colors duration-300",
+                "w-5 h-5 sm:w-7 sm:h-7 transition-colors duration-300",
                 "text-white group-hover:text-[color:var(--c-fg)]",
               )}
             />
@@ -156,7 +164,7 @@ function BentoCardItem({
             href={`/sluzby#${service.slug}`}
             aria-label={`Více o službě ${service.title}`}
             className={cn(
-              "shrink-0 w-9 h-9 rounded-full",
+              "shrink-0 w-8 h-8 sm:w-9 sm:h-9 rounded-full",
               "flex items-center justify-center",
               "border transition-all duration-300",
               "bg-transparent border-white/25 text-white",
@@ -178,8 +186,8 @@ function BentoCardItem({
               "transition-colors duration-300",
               "text-white group-hover:text-[color:var(--c-fg)]",
               card.hero
-                ? "text-3xl md:text-4xl lg:text-5xl"
-                : "text-2xl md:text-3xl",
+                ? "text-2xl sm:text-3xl md:text-4xl lg:text-5xl"
+                : "text-lg sm:text-2xl md:text-3xl",
             )}
           >
             {service.title}
