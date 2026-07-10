@@ -34,7 +34,9 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#e63030",
+  // White keeps the iOS notch/status-bar area calm and matches the header.
+  // (Red here painted a loud red band around the notch on mobile.)
+  themeColor: "#ffffff",
 };
 
 export default function RootLayout({

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { ArrowUpRight, X, Play, ExternalLink, Share2 } from "lucide-react";
 import type { PortfolioItem } from "@/lib/portfolio";
 import { cn } from "@/lib/cn";
@@ -30,6 +30,22 @@ export function PortfolioFlipCard({
 }) {
   const closeRef = useRef<HTMLButtonElement>(null);
   const frontRef = useRef<HTMLButtonElement>(null);
+  const wrapRef = useRef<HTMLDivElement>(null);
+
+  // Mobile (2-col grid → small tiles): flipping the tiny tile in place
+  // can't hold the back content, so the back opens as a centred overlay
+  // sized to the viewport instead. Desktop keeps the in-place 3D flip.
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 767px)");
+    const apply = () => setIsMobile(mq.matches);
+    apply();
+    mq.addEventListener("change", apply);
+    return () => mq.removeEventListener("change", apply);
+  }, []);
+
+  // The in-grid 3D flip only runs on desktop.
+  const tileFlipped = flipped && !isMobile;
 
   // Esc to flip back
   useEffect(() => {
@@ -48,14 +64,20 @@ export function PortfolioFlipCard({
 
   return (
     <div
+      ref={wrapRef}
       className={cn("relative", className)}
       style={{
-        perspective: "1500px",
-        // Lift the flipped card above its neighbours so the scale-up
-        // doesn't get clipped by adjacent cards in the grid.
-        zIndex: flipped ? 30 : 1,
+        // Lift the open card above its neighbours — the desktop scale-up
+        // must not get clipped by adjacent cards, and the mobile overlay
+        // lives inside this stacking context, so it needs to beat every
+        // later sibling tile (and the header) too.
+        zIndex: flipped ? 60 : 1,
       }}
     >
+      {/* Perspective lives on this inner wrapper (NOT the outer div) —
+          `perspective` creates a containing block for position:fixed, which
+          would trap the mobile overlay inside this tiny tile. */}
+      <div className="w-full h-full" style={{ perspective: "1500px" }}>
       <motion.div
         className="relative w-full h-full"
         style={{
@@ -63,8 +85,8 @@ export function PortfolioFlipCard({
           WebkitTransformStyle: "preserve-3d",
         }}
         animate={{
-          rotateY: flipped ? 180 : 0,
-          scale: flipped ? 1.35 : 1,
+          rotateY: tileFlipped ? 180 : 0,
+          scale: tileFlipped ? 1.35 : 1,
         }}
         transition={{
           duration: 0.75,
@@ -102,7 +124,7 @@ export function PortfolioFlipCard({
             // the time-midpoint (0.375s). Swapping at 0.375s left the card
             // blank from ~0.1s onward (front already facing away, back not
             // yet shown). 0.1s keeps a visible face the whole flip.
-            opacity: flipped ? 0 : 1,
+            opacity: tileFlipped ? 0 : 1,
             transition: "opacity 0s linear 0.1s",
           }}
         >
@@ -117,11 +139,13 @@ export function PortfolioFlipCard({
           )}
 
           {/* Bottom overlay for tag + title */}
-          <div className="relative z-10 flex flex-col justify-end h-full bg-gradient-to-t from-black/85 via-black/0 to-transparent p-5 text-white">
-            <span className="text-xs uppercase tracking-[2px] font-bold text-accent">
+          <div className="relative z-10 flex flex-col justify-end h-full bg-gradient-to-t from-black/85 via-black/0 to-transparent p-3 sm:p-5 text-white">
+            <span className="text-[10px] sm:text-xs uppercase tracking-[2px] font-bold text-accent">
               {item.tag}
             </span>
-            <h3 className="text-base text-white mt-1">{item.title}</h3>
+            <h3 className="text-xs sm:text-base text-white mt-1">
+              {item.title}
+            </h3>
           </div>
 
           {/* Click hint — appears on hover */}
@@ -151,16 +175,16 @@ export function PortfolioFlipCard({
             WebkitBackfaceVisibility: "hidden",
             // Inverse of the front — only receive clicks when this face
             // is the one facing the viewer.
-            pointerEvents: flipped ? "auto" : "none",
+            pointerEvents: tileFlipped ? "auto" : "none",
             // Inverse of the front's opacity swap (see above) — appears as
             // the rotation crosses 90°, so a face is always visible and the
             // two never co-exist.
-            opacity: flipped ? 1 : 0,
+            opacity: tileFlipped ? 1 : 0,
             transition: "opacity 0s linear 0.1s",
           }}
-          aria-hidden={!flipped}
+          aria-hidden={!tileFlipped}
         >
-          <BackContent item={item} active={flipped} />
+          <BackContent item={item} active={tileFlipped} />
 
           {/* Close button */}
           <button
@@ -168,7 +192,7 @@ export function PortfolioFlipCard({
             type="button"
             onClick={onClose}
             aria-label="Zavřít detail"
-            tabIndex={flipped ? 0 : -1}
+            tabIndex={tileFlipped ? 0 : -1}
             className={cn(
               "absolute top-3 right-3 z-30 w-8 h-8 rounded-full",
               "bg-white/15 backdrop-blur-md border border-white/25 text-white",
@@ -180,6 +204,55 @@ export function PortfolioFlipCard({
           </button>
         </div>
       </motion.div>
+      </div>
+
+      {/* ============ MOBILE: back face as a centred overlay ============
+          The 2-col mobile tiles are too small to hold the back content, so
+          instead of flipping in place the back "flips in" as a viewport-
+          centred sheet at a readable size. Fixed positioning works because
+          this sits outside the transformed motion.div above. */}
+      <AnimatePresence>
+        {flipped && isMobile && (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            style={{ perspective: "1200px" }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
+          >
+            {/* Backdrop — tap to close */}
+            <button
+              type="button"
+              aria-label="Zavřít detail"
+              onClick={onClose}
+              className="absolute inset-0 bg-black/60 cursor-default"
+            />
+            <motion.div
+              className="relative w-full max-w-[420px] aspect-[4/3] bg-dark text-white overflow-hidden border border-white/10"
+              initial={{ rotateY: -90, scale: 0.92 }}
+              animate={{ rotateY: 0, scale: 1 }}
+              exit={{ rotateY: -90, scale: 0.92 }}
+              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <BackContent item={item} active={flipped} />
+              <button
+                type="button"
+                onClick={onClose}
+                aria-label="Zavřít detail"
+                className={cn(
+                  "absolute top-3 right-3 z-30 w-8 h-8 rounded-full",
+                  "bg-white/15 backdrop-blur-md border border-white/25 text-white",
+                  "flex items-center justify-center cursor-pointer",
+                  "hover:bg-accent hover:border-accent transition-colors",
+                )}
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

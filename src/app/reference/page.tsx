@@ -20,15 +20,22 @@ export default function ReferencePage() {
       />
 
       <section className="mx-auto max-w-(--container-default) px-6 py-12 md:py-20">
-        {/* Mobile: single scrolling column with all 6 testimonials */}
+        {/* Mobile: two scrolling columns side by side */}
         <div
           className={
-            "md:hidden relative flex justify-center mx-auto " +
+            "md:hidden relative flex justify-center gap-3 mx-auto " +
             "max-h-[560px] overflow-hidden " +
             "[mask-image:linear-gradient(to_bottom,transparent,black_12%,black_88%,transparent)]"
           }
         >
-          <TestimonialsColumn testimonials={testimonials} duration={45} />
+          <TestimonialsColumn
+            testimonials={[testimonials[0], testimonials[2], testimonials[4]]}
+            duration={38}
+          />
+          <TestimonialsColumn
+            testimonials={[testimonials[1], testimonials[3], testimonials[5]]}
+            duration={46}
+          />
         </div>
 
         {/* Desktop: 3 columns interleaved across industries */}

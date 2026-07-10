@@ -45,22 +45,22 @@ export default function ONasPage() {
 
       {/* Team */}
       <section className="py-20 md:py-24">
-        <div className="mx-auto max-w-3xl grid gap-12 sm:grid-cols-2 px-6">
+        <div className="mx-auto max-w-3xl grid grid-cols-2 gap-4 sm:gap-12 px-6">
           {site.team.map((p) => (
             <article key={p.email} className="text-center">
               <div
-                className="aspect-square bg-surface-alt border border-divider relative overflow-hidden mb-6"
+                className="aspect-square bg-surface-alt border border-divider relative overflow-hidden mb-4 sm:mb-6"
                 style={{
                   background: "linear-gradient(135deg,#0d0d0d,#444)",
                 }}
               >
                 <span className="absolute bottom-0 left-0 right-0 h-1 bg-accent" />
               </div>
-              <h3 className="text-xl mb-1">{p.name}</h3>
-              <span className="block text-xs uppercase tracking-[3px] text-accent mb-3">
+              <h3 className="text-base sm:text-xl mb-1">{p.name}</h3>
+              <span className="block text-[10px] sm:text-xs uppercase tracking-[3px] text-accent mb-2 sm:mb-3">
                 {p.role}
               </span>
-              <p className="text-text-muted">{p.bio}</p>
+              <p className="text-text-muted text-sm sm:text-base">{p.bio}</p>
             </article>
           ))}
         </div>
