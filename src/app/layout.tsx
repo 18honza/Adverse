@@ -1,8 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { site } from "@/lib/site";
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
+import { SiteChrome } from "@/components/site-chrome";
 import { ScrollTheme } from "@/components/scroll-theme";
 import "./globals.css";
 
@@ -59,9 +58,7 @@ export default function RootLayout({
       </head>
       <body data-theme="light" className="min-h-screen flex flex-col">
         <ScrollTheme defaultTheme="light" />
-        <Header />
-        <main className="flex-1">{children}</main>
-        <Footer />
+        <SiteChrome>{children}</SiteChrome>
       </body>
     </html>
   );
